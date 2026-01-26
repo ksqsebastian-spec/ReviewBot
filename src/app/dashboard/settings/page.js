@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import {
   LANGUAGES,
   NOTIFICATION_INTERVALS,
+  TEST_INTERVALS,
   UI_TEXT,
   DEFAULT_LANGUAGE,
   DEFAULT_NOTIFICATION_INTERVAL,
@@ -20,6 +21,7 @@ import Input from '@/components/ui/Input';
   - Language preference (German/English)
   - Default notification interval
   - Email sender settings
+  - Test email sending
 */
 
 export default function SettingsPage() {
@@ -33,6 +35,13 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Test email state
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [sendingDue, setSendingDue] = useState(false);
+  const [dueResult, setDueResult] = useState(null);
 
   // Get UI text based on current language
   const t = UI_TEXT[settings.default_language] || UI_TEXT.de;
@@ -94,6 +103,66 @@ export default function SettingsPage() {
       console.error('Error saving settings:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Send test email to specific address
+  const handleSendTestEmail = async () => {
+    if (!testEmail) {
+      setTestResult({ success: false, message: 'Bitte E-Mail-Adresse eingeben' });
+      return;
+    }
+
+    setSendingTest(true);
+    setTestResult(null);
+
+    try {
+      const response = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'test', email: testEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setTestResult({ success: true, message: `E-Mail gesendet an ${testEmail}` });
+      } else {
+        setTestResult({ success: false, message: data.error || 'Fehler beim Senden' });
+      }
+    } catch (err) {
+      setTestResult({ success: false, message: err.message });
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
+  // Send all due emails
+  const handleSendDueEmails = async () => {
+    setSendingDue(true);
+    setDueResult(null);
+
+    try {
+      const response = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'due' }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setDueResult({
+          success: true,
+          message: `${data.sent} E-Mails gesendet, ${data.failed} fehlgeschlagen`,
+        });
+      } else {
+        setDueResult({ success: false, message: data.error || 'Fehler beim Senden' });
+      }
+    } catch (err) {
+      setDueResult({ success: false, message: err.message });
+    } finally {
+      setSendingDue(false);
     }
   };
 
@@ -226,6 +295,95 @@ export default function SettingsPage() {
               {settings.default_language === 'de'
                 ? 'Muss in Resend verifiziert sein'
                 : 'Must be verified in Resend'}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Test Email Section */}
+      <Card className="border-amber-200 bg-amber-50">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {settings.default_language === 'de' ? 'E-Mail-Test' : 'Email Testing'}
+        </h2>
+
+        <div className="space-y-4">
+          {/* Send Test Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {settings.default_language === 'de'
+                ? 'Test-E-Mail senden'
+                : 'Send Test Email'}
+            </label>
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder="test@example.com"
+                className="flex-1"
+              />
+              <Button
+                onClick={handleSendTestEmail}
+                loading={sendingTest}
+                variant="secondary"
+              >
+                {settings.default_language === 'de' ? 'Senden' : 'Send'}
+              </Button>
+            </div>
+            {testResult && (
+              <p className={`text-sm mt-2 ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                {testResult.message}
+              </p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <hr className="border-amber-200" />
+
+          {/* Send Due Emails */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {settings.default_language === 'de'
+                ? 'Faellige E-Mails jetzt senden'
+                : 'Send Due Emails Now'}
+            </label>
+            <p className="text-sm text-gray-600 mb-3">
+              {settings.default_language === 'de'
+                ? 'Sendet E-Mails an alle Abonnenten, deren Benachrichtigungszeit erreicht ist.'
+                : 'Sends emails to all subscribers whose notification time has passed.'}
+            </p>
+            <Button
+              onClick={handleSendDueEmails}
+              loading={sendingDue}
+              variant="secondary"
+            >
+              {settings.default_language === 'de'
+                ? 'Faellige E-Mails senden'
+                : 'Send Due Emails'}
+            </Button>
+            {dueResult && (
+              <p className={`text-sm mt-2 ${dueResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                {dueResult.message}
+              </p>
+            )}
+          </div>
+
+          {/* Test Intervals Info */}
+          <div className="bg-white rounded-lg p-3 text-sm text-gray-600">
+            <p className="font-medium text-gray-700 mb-1">
+              {settings.default_language === 'de' ? 'Test-Intervalle:' : 'Test Intervals:'}
+            </p>
+            <ul className="list-disc list-inside">
+              {TEST_INTERVALS.map((interval) => (
+                <li key={interval.value}>
+                  {interval.label[settings.default_language]}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-gray-500">
+              {settings.default_language === 'de'
+                ? 'Waehlen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.'
+                : 'Select these during signup to receive emails immediately or in 2 minutes.'}
             </p>
           </div>
         </div>

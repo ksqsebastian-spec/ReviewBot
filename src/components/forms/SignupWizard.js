@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { isValidEmail } from '@/lib/utils';
 import {
   NOTIFICATION_INTERVALS,
+  TEST_INTERVALS,
   TIME_SLOTS,
   LANGUAGES,
   DEFAULT_LANGUAGE,
@@ -41,10 +42,14 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
     email: '',
     name: '',
     selectedCompanies: initialCompanyId ? [initialCompanyId] : [],
+    completedCompanies: [], // Companies where review is already done
     notificationInterval: DEFAULT_NOTIFICATION_INTERVAL,
     preferredTimeSlot: 'morning',
     preferredLanguage: DEFAULT_LANGUAGE,
   });
+
+  // Combined intervals (production + test) for the dropdown
+  const allIntervals = [...NOTIFICATION_INTERVALS, ...TEST_INTERVALS];
 
   // Available companies
   const [companies, setCompanies] = useState([]);
@@ -102,7 +107,8 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
         .select(`
           *,
           subscriber_companies (
-            company_id
+            company_id,
+            review_completed_at
           )
         `)
         .eq('email', formData.email.toLowerCase().trim())
@@ -111,6 +117,17 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
       if (existingSub && !subError) {
         // Existing subscriber found
         setExistingSubscriber(existingSub);
+
+        // Get company IDs where review is NOT completed (can still subscribe)
+        const activeCompanyIds = (existingSub.subscriber_companies || [])
+          .filter((sc) => !sc.review_completed_at)
+          .map((sc) => sc.company_id);
+
+        // Get company IDs where review IS completed (cannot resubscribe)
+        const completedCompanyIds = (existingSub.subscriber_companies || [])
+          .filter((sc) => sc.review_completed_at)
+          .map((sc) => sc.company_id);
+
         // Pre-fill their preferences
         setFormData((prev) => ({
           ...prev,
@@ -120,10 +137,12 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
           preferredLanguage: existingSub.preferred_language || prev.preferredLanguage,
           selectedCompanies: [
             ...new Set([
-              ...prev.selectedCompanies,
-              ...(existingSub.subscriber_companies || []).map((sc) => sc.company_id),
+              // Keep initial company if not completed
+              ...(completedCompanyIds.includes(initialCompanyId) ? [] : prev.selectedCompanies),
+              ...activeCompanyIds,
             ]),
           ],
+          completedCompanies: completedCompanyIds,
         }));
       }
 
@@ -273,6 +292,20 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
   // Calculate next notification with randomization
   const calculateNextNotification = (intervalDays) => {
     const now = new Date();
+
+    // Handle test intervals (0 = now, fractional = minutes)
+    if (intervalDays === 0) {
+      // "Now" - set to 10 seconds from now
+      return new Date(now.getTime() + 10 * 1000).toISOString();
+    }
+
+    if (intervalDays < 1) {
+      // Fractional day = minutes (e.g., 0.00139 ~= 2 minutes)
+      const minutes = Math.round(intervalDays * 24 * 60);
+      return new Date(now.getTime() + minutes * 60 * 1000).toISOString();
+    }
+
+    // Regular intervals with variance
     // Add variance: ±33% of interval
     const variance = Math.floor(intervalDays * 0.33);
     const randomDays = intervalDays + Math.floor(Math.random() * (variance * 2 + 1)) - variance;
@@ -448,31 +481,44 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
 
               {/* Company list */}
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {companies.map((company) => (
-                  <label
-                    key={company.id}
-                    className={`
-                      flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
-                      ${formData.selectedCompanies.includes(company.id)
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                      }
-                    `}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.selectedCompanies.includes(company.id)}
-                      onChange={() => toggleCompany(company.id)}
-                      className="w-4 h-4 text-primary-600 rounded"
-                    />
-                    <span className="font-medium text-gray-900">{company.name}</span>
-                    {company.id === initialCompanyId && (
-                      <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded">
-                        Aktuell
+                {companies.map((company) => {
+                  const isCompleted = formData.completedCompanies?.includes(company.id);
+                  return (
+                    <label
+                      key={company.id}
+                      className={`
+                        flex items-center gap-3 p-3 rounded-lg border-2 transition-colors
+                        ${isCompleted
+                          ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
+                          : formData.selectedCompanies.includes(company.id)
+                            ? 'border-primary-500 bg-primary-50 cursor-pointer'
+                            : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                        }
+                      `}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.selectedCompanies.includes(company.id)}
+                        onChange={() => !isCompleted && toggleCompany(company.id)}
+                        disabled={isCompleted}
+                        className="w-4 h-4 text-primary-600 rounded disabled:opacity-50"
+                      />
+                      <span className={`font-medium ${isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>
+                        {company.name}
                       </span>
-                    )}
-                  </label>
-                ))}
+                      {isCompleted && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                          Bereits bewertet
+                        </span>
+                      )}
+                      {company.id === initialCompanyId && !isCompleted && (
+                        <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded">
+                          Aktuell
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </>
           )}
@@ -526,16 +572,25 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  notificationInterval: parseInt(e.target.value),
+                  notificationInterval: parseFloat(e.target.value),
                 }))
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
+              {/* Regular intervals */}
               {NOTIFICATION_INTERVALS.map((interval) => (
                 <option key={interval.value} value={interval.value}>
                   {interval.label.de}
                 </option>
               ))}
+              {/* Test intervals - for testing email delivery */}
+              <optgroup label="--- Test ---">
+                {TEST_INTERVALS.map((interval) => (
+                  <option key={`test-${interval.value}`} value={interval.value}>
+                    {interval.label.de}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
 
