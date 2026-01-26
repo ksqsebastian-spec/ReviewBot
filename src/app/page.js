@@ -26,6 +26,13 @@ export default function HomePage() {
   // Fetch companies when component mounts
   useEffect(() => {
     async function fetchCompanies() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setError('Database connection not available. Please check configuration.');
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error: fetchError } = await supabase
           .from('companies')

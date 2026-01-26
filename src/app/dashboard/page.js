@@ -28,6 +28,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchStats() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Fetch counts in parallel for better performance
         const [companiesRes, subscribersRes, reviewsRes] = await Promise.all([

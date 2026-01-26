@@ -29,6 +29,12 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function fetchAnalytics() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Total reviews and copied count
         const { data: reviewData } = await supabase

@@ -76,6 +76,13 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
       return;
     }
 
+    // Handle case when Supabase isn't initialized
+    if (!supabase) {
+      setError('Database connection not available. Please check configuration.');
+      setLoading(false);
+      return;
+    }
+
     try {
       let savedCompany;
 

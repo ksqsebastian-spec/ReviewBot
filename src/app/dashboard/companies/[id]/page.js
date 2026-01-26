@@ -39,6 +39,12 @@ export default function CompanyEditPage() {
   // Fetch company and descriptors
   useEffect(() => {
     async function fetchData() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Fetch company
         const { data: companyData, error: companyError } = await supabase

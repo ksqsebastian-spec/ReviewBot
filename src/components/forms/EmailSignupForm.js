@@ -48,6 +48,13 @@ export default function EmailSignupForm({ companyId, companyName }) {
       return;
     }
 
+    // Handle case when Supabase isn't initialized
+    if (!supabase) {
+      setError('Database connection not available. Please try again later.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error: insertError } = await supabase
         .from('email_subscribers')
