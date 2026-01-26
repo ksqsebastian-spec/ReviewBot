@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Global Styles for Review Bot
+
+  Why use @layer?
+  Tailwind uses layers to organize CSS. Putting custom styles in @layer
+  ensures they integrate properly with Tailwind's purge/optimization.
+*/
+
+@layer base {
+  /* Smooth scrolling for the whole page */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better default body styling */
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /*
+    Reusable component classes
+    These can be applied with className="btn-primary" etc.
+  */
+
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg font-medium
+           hover:bg-primary-700 focus:outline-none focus:ring-2
+           focus:ring-primary-500 focus:ring-offset-2
+           transition-colors duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-700 px-4 py-2 rounded-lg font-medium
+           border border-gray-300
+           hover:bg-gray-50 focus:outline-none focus:ring-2
+           focus:ring-primary-500 focus:ring-offset-2
+           transition-colors duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+           placeholder-gray-400;
+  }
+
+  /* Chip/tag style for descriptors */
+  .chip {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium
+           cursor-pointer transition-all duration-200
+           border-2 border-transparent;
+  }
+
+  .chip-unselected {
+    @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+  }
+
+  .chip-selected {
+    @apply bg-primary-100 text-primary-700 border-primary-500;
+  }
+}
+
+@layer utilities {
+  /* Custom utility for hiding scrollbar but keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
