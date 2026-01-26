@@ -5,6 +5,8 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  // Enable class-based dark mode (toggled via 'dark' class on html element)
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -21,6 +23,9 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+      },
+      fontFamily: {
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
     },
   },

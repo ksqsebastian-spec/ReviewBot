@@ -143,18 +143,19 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
 
   return (
     <>
-      {/* Toggle Button (fixed position) */}
+      {/* Toggle Button (fixed position) - hidden on mobile */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          fixed right-0 top-1/2 -translate-y-1/2 z-40
-          bg-primary-600 text-white px-2 py-4 rounded-l-lg
-          hover:bg-primary-700 transition-all shadow-lg
+          fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden md:block
+          bg-primary-600 dark:bg-primary-500 text-white px-2 py-4 rounded-l-lg
+          hover:bg-primary-700 dark:hover:bg-primary-600 transition-all shadow-lg
           ${isOpen ? 'translate-x-full' : ''}
         `}
         title={t.qrCode}
+        aria-label={t.qrCode}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
         </svg>
       </button>
@@ -162,19 +163,20 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
       {/* Panel */}
       <div
         className={`
-          fixed right-0 top-0 h-full w-80 bg-white shadow-2xl z-50
+          fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-50
           transform transition-transform duration-300
           ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="font-semibold text-gray-900">{t.qrCode}</h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="font-semibold text-gray-900 dark:text-white">{t.qrCode}</h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray-100 rounded"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+            aria-label="Panel schließen"
           >
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -184,17 +186,17 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
         <div className="p-4 space-y-4">
           {loading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200 border-t-primary-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400"></div>
             </div>
           ) : companies.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
               {language === 'de' ? 'Keine Unternehmen vorhanden' : 'No companies available'}
             </p>
           ) : (
             <>
               {/* Company Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {t.selectCompany}
                 </label>
                 <select
@@ -203,7 +205,9 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
                     const company = companies.find((c) => c.id === e.target.value);
                     setSelectedCompany(company);
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                             focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   {companies.map((company) => (
                     <option key={company.id} value={company.id}>
@@ -220,8 +224,8 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
                   className={`
                     flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors
                     ${qrType === 'review'
-                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500 dark:bg-primary-900 dark:text-primary-300 dark:border-primary-400'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }
                   `}
                 >
@@ -232,8 +236,8 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
                   className={`
                     flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors
                     ${qrType === 'signup'
-                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500 dark:bg-primary-900 dark:text-primary-300 dark:border-primary-400'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }
                   `}
                 >
@@ -248,25 +252,25 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
 
               {/* URL Display */}
               <div className="text-center">
-                <p className="text-xs text-gray-500 break-all">{getQRUrl()}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 break-all">{getQRUrl()}</p>
               </div>
 
               {/* Actions */}
               <div className="space-y-2">
                 <Button onClick={handlePrint} className="w-full">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
                   {t.printQR}
                 </Button>
                 <Button variant="secondary" onClick={handleCopy} className="w-full">
                   {copied ? (
-                    <span className="text-green-600">
+                    <span className="text-green-600 dark:text-green-400">
                       {language === 'de' ? 'Kopiert!' : 'Copied!'}
                     </span>
                   ) : (
                     <>
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
                       {language === 'de' ? 'Link kopieren' : 'Copy Link'}
@@ -282,8 +286,9 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-40"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 z-40"
           onClick={() => setIsOpen(false)}
+          aria-hidden="true"
         />
       )}
     </>
