@@ -1,20 +1,20 @@
+'use client';
+
 import Sidebar from '@/components/layout/Sidebar';
+import QRCodePanel from '@/components/dashboard/QRCodePanel';
 
 /*
   Dashboard Layout
 
-  Wraps all /dashboard/* pages with a sidebar navigation.
-  This is a nested layout - it adds to the root layout, not replaces it.
+  Wraps all /dashboard/* pages with:
+  - Sidebar navigation (left)
+  - QR Code panel (right, collapsible)
 
   NEXT.JS LAYOUTS:
   - layout.js in a folder wraps all pages in that folder
   - They can be nested (root layout → dashboard layout → page)
   - Great for shared UI like sidebars that only appear in certain sections
 */
-
-export const metadata = {
-  title: 'Dashboard',
-};
 
 export default function DashboardLayout({ children }) {
   return (
@@ -26,6 +26,9 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 p-8 bg-gray-50 min-h-[calc(100vh-4rem)]">
         {children}
       </div>
+
+      {/* QR Code panel (collapsible, right side) */}
+      <QRCodePanel language="de" />
     </div>
   );
 }
