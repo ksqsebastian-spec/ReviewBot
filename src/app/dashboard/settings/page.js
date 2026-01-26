@@ -67,7 +67,7 @@ export default function SettingsPage() {
           setSettings(data);
         }
       } catch (err) {
-        console.error('Error fetching settings:', err);
+        // Error handled silently
       } finally {
         setLoading(false);
       }
@@ -100,7 +100,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      console.error('Error saving settings:', err);
+      // Silently fail - user sees no success message
     } finally {
       setSaving(false);
     }
@@ -293,8 +293,8 @@ export default function SettingsPage() {
             />
             <p className="text-sm text-gray-500 mt-1">
               {settings.default_language === 'de'
-                ? 'Muss in Resend verifiziert sein'
-                : 'Must be verified in Resend'}
+                ? 'Wird für Gmail SMTP verwendet'
+                : 'Used for Gmail SMTP'}
             </p>
           </div>
         </div>

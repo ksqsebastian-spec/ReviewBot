@@ -53,7 +53,7 @@ export default function SignupPage() {
 
         setCompany(data);
       } catch (err) {
-        console.error('Error fetching company:', err);
+        // Error handled by state
         setError('Dieses Unternehmen wurde nicht gefunden. Bitte prüfen Sie die URL.');
       } finally {
         setLoading(false);

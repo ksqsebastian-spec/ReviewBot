@@ -50,7 +50,7 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
           setSelectedCompany(data[0]);
         }
       } catch (err) {
-        console.error('Error fetching companies:', err);
+        // Silently fail - panel will show empty
       } finally {
         setLoading(false);
       }
@@ -78,7 +78,7 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      // Copy failed silently - user can try again
     }
   };
 

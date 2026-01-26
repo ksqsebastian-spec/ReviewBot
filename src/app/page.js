@@ -28,7 +28,7 @@ export default function HomePage() {
     async function fetchCompanies() {
       // Handle case when Supabase isn't initialized (during build)
       if (!supabase) {
-        setError('Database connection not available. Please check configuration.');
+        setError('Datenbankverbindung nicht verfügbar. Bitte Konfiguration prüfen.');
         setLoading(false);
         return;
       }
@@ -42,8 +42,7 @@ export default function HomePage() {
         if (fetchError) throw fetchError;
         setCompanies(data || []);
       } catch (err) {
-        console.error('Error fetching companies:', err);
-        setError('Unable to load companies. Please try again.');
+        setError('Unternehmen konnten nicht geladen werden. Bitte erneut versuchen.');
       } finally {
         setLoading(false);
       }

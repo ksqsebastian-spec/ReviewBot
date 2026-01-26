@@ -44,7 +44,7 @@ export default function CompanySelector({
         if (error) throw error;
         setCompanies(data || []);
       } catch (err) {
-        console.error('Error fetching companies:', err);
+        // Silently fail - selector will be empty
       } finally {
         setLoading(false);
       }

@@ -105,7 +105,7 @@ function ReviewPageContent() {
         setCategories(categoryData || []);
 
       } catch (err) {
-        console.error('Error fetching data:', err);
+        // Error handled by state
         setError(
           err.message === 'Company not found'
             ? 'Dieses Unternehmen wurde nicht gefunden.'
@@ -165,13 +165,13 @@ function ReviewPageContent() {
         .eq('company_id', company.id);
 
       if (updateError) {
-        console.error('Error marking review completed:', updateError);
+        // Continue silently - don't block user
         // Don't block user experience
       } else {
         setReviewCompleted(true);
       }
     } catch (err) {
-      console.error('Error marking review completed:', err);
+      // Continue silently
     }
   };
 
@@ -186,7 +186,7 @@ function ReviewPageContent() {
         copied: true,
       });
     } catch (err) {
-      console.error('Failed to track review copy:', err);
+      // Tracking failed silently
     }
   };
 
@@ -311,7 +311,7 @@ function ReviewPageContent() {
         {categories.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              Fuer dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
+              Für dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
             </p>
           </div>
         ) : (

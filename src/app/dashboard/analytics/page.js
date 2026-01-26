@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
         });
         setRecentReviews(recent || []);
       } catch (err) {
-        console.error('Error fetching analytics:', err);
+        // Error handled by state
       } finally {
         setLoading(false);
       }

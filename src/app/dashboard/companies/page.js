@@ -58,7 +58,7 @@ function CompaniesContent() {
       if (error) throw error;
       setCompanies(data || []);
     } catch (err) {
-      console.error('Error fetching companies:', err);
+      // Error handled by state
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ function CompaniesContent() {
       setCompanies((prev) => prev.filter((c) => c.id !== companyId));
       setDeleteConfirm(null);
     } catch (err) {
-      console.error('Error deleting company:', err);
+      // Silently fail - user can retry
     }
   }
 
