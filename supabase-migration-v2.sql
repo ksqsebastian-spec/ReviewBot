@@ -43,6 +43,24 @@ CREATE TABLE IF NOT EXISTS subscriber_companies (
   UNIQUE(subscriber_id, company_id)
 );
 
+-- ============================================
+-- ADD COLUMN IF TABLE EXISTS (for existing installations)
+-- Must run BEFORE creating indexes that use this column
+-- ============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'subscriber_companies' AND column_name = 'review_completed_at'
+  ) THEN
+    ALTER TABLE subscriber_companies ADD COLUMN review_completed_at TIMESTAMP WITH TIME ZONE;
+  END IF;
+END $$;
+
+-- ============================================
+-- INDEXES FOR SUBSCRIBER_COMPANIES
+-- Created AFTER the column is guaranteed to exist
+-- ============================================
 -- Index for finding subscriptions by subscriber
 CREATE INDEX IF NOT EXISTS idx_subcomp_subscriber ON subscriber_companies(subscriber_id);
 -- Index for finding subscriptions by company
@@ -104,6 +122,13 @@ ALTER TABLE subscriber_companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications_sent ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist, then recreate
+-- (Safe to run multiple times)
+DROP POLICY IF EXISTS "Allow all for subscribers_new" ON subscribers;
+DROP POLICY IF EXISTS "Allow all for subscriber_companies" ON subscriber_companies;
+DROP POLICY IF EXISTS "Allow all for notifications_sent" ON notifications_sent;
+DROP POLICY IF EXISTS "Allow all for app_settings" ON app_settings;
+
 -- Allow all operations for now (update when adding auth)
 CREATE POLICY "Allow all for subscribers_new" ON subscribers FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for subscriber_companies" ON subscriber_companies FOR ALL USING (true) WITH CHECK (true);
@@ -155,20 +180,6 @@ BEGIN
   RETURN next_date;
 END;
 $$ LANGUAGE plpgsql;
-
--- ============================================
--- ADD COLUMN IF TABLE EXISTS (for existing installations)
--- ============================================
--- Safe to run multiple times
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'subscriber_companies' AND column_name = 'review_completed_at'
-  ) THEN
-    ALTER TABLE subscriber_companies ADD COLUMN review_completed_at TIMESTAMP WITH TIME ZONE;
-  END IF;
-END $$;
 
 -- ============================================
 -- MIGRATION COMPLETE
