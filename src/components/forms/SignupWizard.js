@@ -90,12 +90,12 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
     setError(null);
 
     if (!isValidEmail(formData.email)) {
-      setError('Bitte geben Sie eine gueltige E-Mail-Adresse ein');
+      setError('Bitte geben Sie eine gültige E-Mail-Adresse ein');
       return;
     }
 
     if (!supabase) {
-      setError('Datenbankverbindung nicht verfuegbar. Bitte versuchen Sie es spaeter.');
+      setError('Datenbankverbindung nicht verfügbar. Bitte versuchen Sie es später.');
       return;
     }
 
@@ -183,7 +183,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
   const handleCompanySubmit = (e) => {
     e.preventDefault();
     if (formData.selectedCompanies.length === 0) {
-      setError('Bitte waehlen Sie mindestens ein Unternehmen aus');
+      setError('Bitte wählen Sie mindestens ein Unternehmen aus');
       return;
     }
     setError(null);
@@ -197,7 +197,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
     setLoading(true);
 
     if (!supabase) {
-      setError('Datenbankverbindung nicht verfuegbar');
+      setError('Datenbankverbindung nicht verfügbar');
       setLoading(false);
       return;
     }
@@ -443,7 +443,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
         <form onSubmit={handleCompanySubmit} className="space-y-4">
           <div className="text-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900">
-              Unternehmen auswaehlen
+              Unternehmen auswählen
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Von welchen Unternehmen moechten Sie Erinnerungen erhalten?
@@ -452,7 +452,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
 
           {existingSubscriber && (
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
-              Willkommen zurueck! Wir haben Ihre bestehenden Einstellungen geladen.
+              Willkommen zurück! Wir haben Ihre bestehenden Einstellungen geladen.
             </div>
           )}
 
@@ -476,7 +476,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               >
                 {formData.selectedCompanies.length === companies.length
                   ? 'Auswahl aufheben'
-                  : 'Alle auswaehlen'}
+                  : 'Alle auswählen'}
               </button>
 
               {/* Company list */}
@@ -530,7 +530,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               onClick={() => setStep(1)}
               className="flex-1"
             >
-              Zurueck
+              Zurück
             </Button>
             <Button type="submit" className="flex-1">
               Weiter
@@ -655,7 +655,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               onClick={() => setStep(2)}
               className="flex-1"
             >
-              Zurueck
+              Zurück
             </Button>
             <Button type="submit" loading={loading} className="flex-1">
               Anmelden
@@ -680,7 +680,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
           Erfolgreich angemeldet!
         </h3>
         <p className="text-gray-600 mb-4">
-          Sie erhalten jetzt Bewertungserinnerungen fuer:
+          Sie erhalten jetzt Bewertungserinnerungen für:
         </p>
         <div className="flex flex-wrap justify-center gap-2 mb-6">
           {getSelectedCompanyNames().map((name) => (
