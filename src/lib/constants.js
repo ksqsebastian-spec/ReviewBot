@@ -110,6 +110,16 @@ export const NOTIFICATION_INTERVALS = [
   { value: 90, label: { de: 'Vierteljährlich', en: 'Quarterly' } },
 ];
 
+// Test intervals for development - sends email immediately or after 2 minutes
+// These use fractional days (1 minute = 1/1440 of a day)
+export const TEST_INTERVALS = [
+  { value: 0, label: { de: 'Sofort (Test)', en: 'Now (Test)' } },
+  { value: 0.00139, label: { de: '2 Minuten (Test)', en: '2 Minutes (Test)' } }, // ~2 min in days
+];
+
+// Combined intervals for settings (production + test)
+export const ALL_NOTIFICATION_INTERVALS = [...NOTIFICATION_INTERVALS, ...TEST_INTERVALS];
+
 export const DEFAULT_NOTIFICATION_INTERVAL = 30;
 
 // ============================================

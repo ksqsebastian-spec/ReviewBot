@@ -29,6 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_subscribers_active ON subscribers(is_active) WHER
 -- TABLE: SUBSCRIBER_COMPANIES (Many-to-Many)
 -- ============================================
 -- Links subscribers to companies they want reminders for
+-- Once review_completed_at is set, no more reminders for that company
 CREATE TABLE IF NOT EXISTS subscriber_companies (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   subscriber_id UUID NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE,
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS subscriber_companies (
   subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   next_notification_at TIMESTAMP WITH TIME ZONE,  -- Pre-calculated with randomness
   last_notified_at TIMESTAMP WITH TIME ZONE,
+  review_completed_at TIMESTAMP WITH TIME ZONE,  -- Set when user submits a review (DONE!)
 
   -- Prevent duplicate subscriptions
   UNIQUE(subscriber_id, company_id)
@@ -45,9 +47,12 @@ CREATE TABLE IF NOT EXISTS subscriber_companies (
 CREATE INDEX IF NOT EXISTS idx_subcomp_subscriber ON subscriber_companies(subscriber_id);
 -- Index for finding subscriptions by company
 CREATE INDEX IF NOT EXISTS idx_subcomp_company ON subscriber_companies(company_id);
--- Index for finding due notifications
+-- Index for finding due notifications (only for incomplete reviews)
 CREATE INDEX IF NOT EXISTS idx_subcomp_next_notification ON subscriber_companies(next_notification_at)
-  WHERE next_notification_at IS NOT NULL;
+  WHERE next_notification_at IS NOT NULL AND review_completed_at IS NULL;
+-- Index for completed reviews
+CREATE INDEX IF NOT EXISTS idx_subcomp_completed ON subscriber_companies(review_completed_at)
+  WHERE review_completed_at IS NOT NULL;
 
 -- ============================================
 -- TABLE: NOTIFICATIONS_SENT (Logging)
@@ -152,13 +157,30 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================
+-- ADD COLUMN IF TABLE EXISTS (for existing installations)
+-- ============================================
+-- Safe to run multiple times
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'subscriber_companies' AND column_name = 'review_completed_at'
+  ) THEN
+    ALTER TABLE subscriber_companies ADD COLUMN review_completed_at TIMESTAMP WITH TIME ZONE;
+  END IF;
+END $$;
+
+-- ============================================
 -- MIGRATION COMPLETE
 -- ============================================
 -- New tables created:
--- - subscribers (person-centric)
--- - subscriber_companies (many-to-many)
+-- - subscribers (person-centric, with global preferences)
+-- - subscriber_companies (many-to-many, tracks review completion)
 -- - notifications_sent (logging)
 -- - app_settings (global config)
+--
+-- Key design: Once review_completed_at is set for a company,
+-- subscriber is DONE with that company - no more reminders.
 --
 -- The old email_subscribers table is kept for backward compatibility
 -- but new signups will use the new structure.

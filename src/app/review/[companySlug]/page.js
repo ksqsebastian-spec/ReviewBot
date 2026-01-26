@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { Suspense, useState, useEffect, useMemo } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { generateReview } from '@/lib/utils';
@@ -17,22 +17,27 @@ import ReviewActions from '@/components/review/ReviewActions';
 
   The main review generation page for a specific company.
   URL: /review/[companySlug] (e.g., /review/sunrise-dental)
+  Optional: ?sid=subscriberId (from email link)
 
   HOW IT WORKS:
   1. Fetches company info and descriptors from Supabase
-  2. User selects descriptors by clicking chips
-  3. Review is generated in real-time from selections
-  4. User copies review and clicks link to Google
+  2. Checks if subscriber has already reviewed (if sid provided)
+  3. User selects descriptors by clicking chips
+  4. Review is generated in real-time from selections
+  5. User copies review and clicks link to Google
+  6. Marks review as completed for that subscriber
 
-  DYNAMIC ROUTING:
-  The [companySlug] folder name creates a dynamic route.
-  useParams() gives us the actual slug from the URL.
+  SUBSCRIBER TRACKING:
+  When accessed via email link (?sid=xxx), we track:
+  - Whether they've already reviewed this company
+  - When they complete their review (copy + click Google)
 */
 
-export default function ReviewPage() {
-  // Get the company slug from URL
+function ReviewPageContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const companySlug = params.companySlug;
+  const subscriberId = searchParams.get('sid'); // Subscriber ID from email link
 
   // State management
   const [company, setCompany] = useState(null);
@@ -41,18 +46,21 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Subscriber state
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+  const [reviewCompleted, setReviewCompleted] = useState(false);
+
   // Fetch company and descriptors on mount
   useEffect(() => {
     async function fetchData() {
-      // Handle case when Supabase isn't initialized (during build)
       if (!supabase) {
-        setError('Database connection not available. Please check configuration.');
+        setError('Datenbankverbindung nicht verfuegbar.');
         setLoading(false);
         return;
       }
 
       try {
-        // First, get the company by slug
+        // Get the company by slug
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
           .select('*')
@@ -64,7 +72,21 @@ export default function ReviewPage() {
 
         setCompany(companyData);
 
-        // Then, get categories with their descriptors
+        // Check if subscriber already reviewed this company
+        if (subscriberId) {
+          const { data: subCompany } = await supabase
+            .from('subscriber_companies')
+            .select('review_completed_at')
+            .eq('subscriber_id', subscriberId)
+            .eq('company_id', companyData.id)
+            .single();
+
+          if (subCompany?.review_completed_at) {
+            setAlreadyReviewed(true);
+          }
+        }
+
+        // Get categories with their descriptors
         const { data: categoryData, error: categoryError } = await supabase
           .from('descriptor_categories')
           .select(`
@@ -86,8 +108,8 @@ export default function ReviewPage() {
         console.error('Error fetching data:', err);
         setError(
           err.message === 'Company not found'
-            ? 'This company was not found. Please check the URL.'
-            : MESSAGES.error.generic
+            ? 'Dieses Unternehmen wurde nicht gefunden.'
+            : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
         );
       } finally {
         setLoading(false);
@@ -97,7 +119,7 @@ export default function ReviewPage() {
     if (companySlug) {
       fetchData();
     }
-  }, [companySlug]);
+  }, [companySlug, subscriberId]);
 
   // Toggle descriptor selection
   const handleToggle = (descriptorId) => {
@@ -113,13 +135,11 @@ export default function ReviewPage() {
   };
 
   // Generate review text from selected descriptors
-  // useMemo prevents recalculating on every render
   const reviewText = useMemo(() => {
     if (selectedDescriptors.size < APP_CONFIG.minDescriptorsForReview) {
       return '';
     }
 
-    // Find the text for each selected descriptor
     const selectedTexts = [];
     categories.forEach((category) => {
       category.descriptors.forEach((descriptor) => {
@@ -132,27 +152,48 @@ export default function ReviewPage() {
     return generateReview(selectedTexts, REVIEW_TEMPLATES);
   }, [selectedDescriptors, categories]);
 
-  // Track when review is copied (for analytics)
+  // Mark review as completed for subscriber
+  const markReviewCompleted = async () => {
+    if (!subscriberId || !company || !supabase || reviewCompleted) return;
+
+    try {
+      // Update subscriber_companies to mark review as completed
+      const { error: updateError } = await supabase
+        .from('subscriber_companies')
+        .update({ review_completed_at: new Date().toISOString() })
+        .eq('subscriber_id', subscriberId)
+        .eq('company_id', company.id);
+
+      if (updateError) {
+        console.error('Error marking review completed:', updateError);
+        // Don't block user experience
+      } else {
+        setReviewCompleted(true);
+      }
+    } catch (err) {
+      console.error('Error marking review completed:', err);
+    }
+  };
+
+  // Track when review is copied
   const handleCopy = async () => {
     if (!company || !supabase) return;
 
     try {
-      // Record the generated review for analytics
       await supabase.from('generated_reviews').insert({
         company_id: company.id,
         review_text: reviewText,
         copied: true,
       });
     } catch (err) {
-      // Don't block user experience for analytics failures
       console.error('Failed to track review copy:', err);
     }
   };
 
-  // Track when Google link is clicked (for analytics)
+  // Track when Google link is clicked - this completes the review
   const handleLinkClick = async () => {
-    // Could update the generated_review record here
-    // For now, we'll keep it simple
+    // Mark the review as completed for this subscriber
+    await markReviewCompleted();
   };
 
   // Loading state
@@ -173,8 +214,56 @@ export default function ReviewPage() {
         <Card className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Link href="/">
-            <Button>Back to Home</Button>
+            <Button>Zur Startseite</Button>
           </Link>
+        </Card>
+      </div>
+    );
+  }
+
+  // Already reviewed state
+  if (alreadyReviewed) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <Card className="text-center py-8">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Vielen Dank fuer Ihre Bewertung!
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Sie haben bereits eine Bewertung fuer {company.name} abgegeben.
+          </p>
+          <p className="text-sm text-gray-500">
+            Sie werden keine weiteren Erinnerungen fuer dieses Unternehmen erhalten.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Review completed state (just completed)
+  if (reviewCompleted) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <Card className="text-center py-8">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Vielen Dank!
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Ihre Bewertung fuer {company.name} wurde erfasst.
+          </p>
+          <p className="text-sm text-gray-500">
+            Sie werden keine weiteren Erinnerungen fuer dieses Unternehmen erhalten.
+          </p>
         </Card>
       </div>
     );
@@ -192,14 +281,14 @@ export default function ReviewPage() {
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to companies
+          Zurueck
         </Link>
 
         <div className="flex items-center gap-4">
           {company.logo_url ? (
             <img
               src={company.logo_url}
-              alt={`${company.name} logo`}
+              alt={`${company.name} Logo`}
               className="w-16 h-16 rounded-lg object-cover"
             />
           ) : (
@@ -211,7 +300,7 @@ export default function ReviewPage() {
           )}
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
-            <p className="text-gray-600">Leave a review</p>
+            <p className="text-gray-600">Bewertung hinterlassen</p>
           </div>
         </div>
       </div>
@@ -222,7 +311,7 @@ export default function ReviewPage() {
         {categories.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              No review options have been set up for this company yet.
+              Fuer dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
             </p>
           </div>
         ) : (
@@ -262,5 +351,22 @@ export default function ReviewPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+// Wrapper component with Suspense for useSearchParams
+export default function ReviewPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-3xl mx-auto px-4 py-12">
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600"></div>
+          </div>
+        </div>
+      }
+    >
+      <ReviewPageContent />
+    </Suspense>
   );
 }
