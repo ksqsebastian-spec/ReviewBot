@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
+import nodemailer from 'nodemailer';
 
 /*
   Email Sending API - POST /api/email/send
 
   Sends review reminder emails to subscribers.
-  Uses Resend API for delivery.
+  Uses Gmail SMTP via Nodemailer for delivery.
 
   MODES:
   - "test": Send to a specific email immediately
@@ -13,13 +14,32 @@ import { createClient } from '@supabase/supabase-js';
 
   SECURITY:
   - Uses service role key (server-side only)
-  - Rate limited by Resend
+  - Rate limited by Gmail (500/day)
   - Validates all inputs
+
+  ENV VARS REQUIRED:
+  - GMAIL_USER: Your Gmail address
+  - GMAIL_APP_PASSWORD: App password from Google Account
 */
 
-// Resend API configuration
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_API_URL = 'https://api.resend.com/emails';
+// Gmail SMTP configuration
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+
+// Create reusable transporter with Gmail SMTP
+function getEmailTransporter() {
+  if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
+    throw new Error('Gmail credentials not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD.');
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_APP_PASSWORD,
+    },
+  });
+}
 
 // Create Supabase client with service role for server operations
 function getSupabaseAdmin() {
@@ -33,32 +53,19 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, supabaseServiceKey);
 }
 
-// Send email via Resend
+// Send email via Gmail SMTP
 async function sendEmail({ to, subject, html, from }) {
-  if (!RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY not configured');
-  }
+  const transporter = getEmailTransporter();
 
-  const response = await fetch(RESEND_API_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: from || 'Review Bot <onboarding@resend.dev>', // Use verified domain in production
-      to: [to],
-      subject,
-      html,
-    }),
-  });
+  const mailOptions = {
+    from: from || `Review Bot <${GMAIL_USER}>`,
+    to: to,
+    subject: subject,
+    html: html,
+  };
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to send email');
-  }
-
-  return response.json();
+  const result = await transporter.sendMail(mailOptions);
+  return { id: result.messageId, success: true };
 }
 
 // Generate email HTML for review reminder
