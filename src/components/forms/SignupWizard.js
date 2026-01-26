@@ -6,6 +6,7 @@ import { isValidEmail } from '@/lib/utils';
 import {
   NOTIFICATION_INTERVALS,
   TEST_INTERVALS,
+  ALL_NOTIFICATION_INTERVALS,
   TIME_SLOTS,
   LANGUAGES,
   DEFAULT_LANGUAGE,
@@ -47,9 +48,6 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
     preferredTimeSlot: 'morning',
     preferredLanguage: DEFAULT_LANGUAGE,
   });
-
-  // Combined intervals (production + test) for the dropdown
-  const allIntervals = [...NOTIFICATION_INTERVALS, ...TEST_INTERVALS];
 
   // Available companies
   const [companies, setCompanies] = useState([]);
@@ -397,7 +395,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
         <form onSubmit={handleEmailSubmit} className="space-y-4">
           <div className="text-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900">
-              Fuer Bewertungserinnerungen anmelden
+              Für Bewertungserinnerungen anmelden
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Geben Sie Ihre E-Mail-Adresse ein, um zu beginnen
@@ -446,7 +444,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               Unternehmen auswählen
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Von welchen Unternehmen moechten Sie Erinnerungen erhalten?
+              Von welchen Unternehmen möchten Sie Erinnerungen erhalten?
             </p>
           </div>
 
@@ -552,7 +550,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
               Ihre Einstellungen
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Wie oft moechten Sie erinnert werden?
+              Wie oft möchten Sie erinnert werden?
             </p>
           </div>
 

@@ -74,7 +74,7 @@ function generateReviewReminderEmail({ subscriberName, companyName, reviewUrl, l
     de: {
       greeting: subscriberName ? `Hallo ${subscriberName}` : 'Hallo',
       intro: `Wir hoffen, Sie hatten eine gute Erfahrung bei ${companyName}.`,
-      cta: 'Wuerden Sie sich einen Moment Zeit nehmen, um eine Bewertung zu hinterlassen?',
+      cta: 'Würden Sie sich einen Moment Zeit nehmen, um eine Bewertung zu hinterlassen?',
       button: 'Jetzt bewerten',
       thanks: 'Vielen Dank für Ihre Unterstützung!',
       footer: 'Sie erhalten diese E-Mail, weil Sie sich für Bewertungserinnerungen angemeldet haben.',

@@ -293,8 +293,8 @@ export default function SettingsPage() {
             />
             <p className="text-sm text-gray-500 mt-1">
               {settings.default_language === 'de'
-                ? 'Muss in Resend verifiziert sein'
-                : 'Must be verified in Resend'}
+                ? 'Wird für Gmail SMTP verwendet'
+                : 'Used for Gmail SMTP'}
             </p>
           </div>
         </div>

@@ -311,7 +311,7 @@ function ReviewPageContent() {
         {categories.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              Fuer dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
+              Für dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
             </p>
           </div>
         ) : (
