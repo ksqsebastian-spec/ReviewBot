@@ -173,8 +173,8 @@ export default function SubscribersPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Abonnenten</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Abonnenten</h1>
+          <p className="text-gray-600 dark:text-dark-400 mt-1">
             {subscribers.filter((s) => s.is_active).length} aktive Abonnenten
           </p>
         </div>
@@ -197,7 +197,7 @@ export default function SubscribersPage() {
       {!loading && subscribers.length === 0 && (
         <Card className="text-center py-12">
           <svg
-            className="w-16 h-16 text-gray-300 mx-auto mb-4"
+            className="w-16 h-16 text-gray-300 dark:text-dark-600 mx-auto mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -209,10 +209,10 @@ export default function SubscribersPage() {
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
             />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             Noch keine Abonnenten
           </h3>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-dark-400">
             Teilen Sie Ihren Anmelde-Link oder QR-Code, um Abonnenten zu gewinnen.
           </p>
         </Card>
@@ -228,23 +228,23 @@ export default function SubscribersPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                      <span className="text-lg font-semibold text-primary-600">
+                    <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                      <span className="text-lg font-semibold text-primary-600 dark:text-primary-400">
                         {(subscriber.name || subscriber.email).charAt(0).toUpperCase()}
                       </span>
                     </div>
 
                     {/* Name and email */}
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {subscriber.name || 'Ohne Namen'}
                       </p>
-                      <p className="text-sm text-gray-500">{subscriber.email}</p>
+                      <p className="text-sm text-gray-500 dark:text-dark-400">{subscriber.email}</p>
                     </div>
 
                     {/* Status badge */}
                     {!subscriber.is_active && (
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-dark-700 dark:text-dark-300">
                         Inaktiv
                       </span>
                     )}
@@ -255,7 +255,7 @@ export default function SubscribersPage() {
                     {subscriber.subscriber_companies?.map((sc) => (
                       <span
                         key={sc.id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700"
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300"
                       >
                         {sc.companies?.name || 'Unbekannt'}
                       </span>
@@ -263,7 +263,7 @@ export default function SubscribersPage() {
                   </div>
 
                   {/* Meta info */}
-                  <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                  <div className="mt-3 flex items-center gap-4 text-sm text-gray-500 dark:text-dark-400">
                     <span>
                       Intervall: {getIntervalLabel(subscriber.notification_interval_days)}
                     </span>
@@ -278,7 +278,7 @@ export default function SubscribersPage() {
                   {subscriber.is_active && (
                     <button
                       onClick={() => handleDeactivate(subscriber.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-900/20"
                       title="Deaktivieren"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,9 +294,9 @@ export default function SubscribersPage() {
       )}
 
       {/* Info Card */}
-      <Card className="bg-blue-50 border-blue-200">
-        <h3 className="font-semibold text-gray-900 mb-2">Hinweis zur E-Mail-Versand</h3>
-        <p className="text-sm text-gray-700">
+      <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Hinweis zur E-Mail-Versand</h3>
+        <p className="text-sm text-gray-700 dark:text-dark-300">
           Die automatische E-Mail-Versand-Funktion wird nach Einrichtung von Resend aktiviert.
           Bis dahin können Sie die Abonnentenliste exportieren und manuell E-Mails versenden.
         </p>

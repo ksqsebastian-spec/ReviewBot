@@ -118,8 +118,8 @@ export default function EmailListPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Email List</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email List</h1>
+          <p className="text-gray-600 dark:text-dark-400 mt-1">
             {filteredSubscribers.length} subscriber{filteredSubscribers.length !== 1 && 's'}
           </p>
         </div>
@@ -134,11 +134,12 @@ export default function EmailListPage() {
       {/* Filters */}
       <Card>
         <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700">Filter by company:</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-dark-200">Filter by company:</label>
           <select
             value={selectedCompany}
             onChange={(e) => setSelectedCompany(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500
+                       dark:bg-dark-800 dark:border-dark-600 dark:text-dark-100"
           >
             <option value="all">All Companies</option>
             {companies.map((company) => (
@@ -161,7 +162,7 @@ export default function EmailListPage() {
       {!loading && filteredSubscribers.length === 0 && (
         <Card className="text-center py-12">
           <svg
-            className="w-16 h-16 text-gray-300 mx-auto mb-4"
+            className="w-16 h-16 text-gray-300 dark:text-dark-600 mx-auto mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -173,10 +174,10 @@ export default function EmailListPage() {
               d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
             />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             No subscribers yet
           </h3>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-dark-400">
             Share your signup link or QR code to start collecting emails.
           </p>
         </Card>
@@ -186,44 +187,44 @@ export default function EmailListPage() {
       {!loading && filteredSubscribers.length > 0 && (
         <Card className="overflow-hidden p-0">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-dark-800 border-b dark:border-dark-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-400 uppercase tracking-wider">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-400 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-400 uppercase tracking-wider">
                   Company
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-400 uppercase tracking-wider">
                   Subscribed
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-400 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-dark-700">
               {filteredSubscribers.map((subscriber) => (
-                <tr key={subscriber.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr key={subscriber.id} className="hover:bg-gray-50 dark:hover:bg-dark-800">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-dark-100">
                     {subscriber.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-dark-400">
                     {subscriber.name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-dark-400">
                     {subscriber.companies?.name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-dark-400">
                     {formatDate(subscriber.subscribed_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                     <button
                       onClick={() => handleUnsubscribe(subscriber.id)}
-                      className="text-red-600 hover:text-red-800"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     >
                       Remove
                     </button>
@@ -236,17 +237,17 @@ export default function EmailListPage() {
       )}
 
       {/* Manual Reminder Info */}
-      <Card className="bg-blue-50 border-blue-200">
-        <h3 className="font-semibold text-gray-900 mb-2">Sending Reminders</h3>
-        <p className="text-gray-700 text-sm">
+      <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Sending Reminders</h3>
+        <p className="text-gray-700 dark:text-dark-200 text-sm">
           To send review reminders to your subscribers:
         </p>
-        <ol className="list-decimal list-inside text-sm text-gray-700 mt-2 space-y-1">
+        <ol className="list-decimal list-inside text-sm text-gray-700 dark:text-dark-200 mt-2 space-y-1">
           <li>Export the email list as CSV</li>
           <li>Import into your email tool (Gmail, Mailchimp, etc.)</li>
           <li>Send a friendly reminder with the review link</li>
         </ol>
-        <p className="text-sm text-gray-500 mt-3">
+        <p className="text-sm text-gray-500 dark:text-dark-400 mt-3">
           Automated email reminders coming in a future update!
         </p>
       </Card>

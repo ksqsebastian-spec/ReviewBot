@@ -213,7 +213,7 @@ export default function CompanyEditPage() {
   if (!company) {
     return (
       <Card className="text-center">
-        <p className="text-gray-600 mb-4">Company not found</p>
+        <p className="text-gray-600 dark:text-dark-400 mb-4">Company not found</p>
         <Link href="/dashboard/companies">
           <Button>Back to Companies</Button>
         </Link>
@@ -232,14 +232,14 @@ export default function CompanyEditPage() {
         <div>
           <Link
             href="/dashboard/companies"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-dark-400 dark:hover:text-dark-200 mb-2"
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Companies
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h1>
         </div>
         <Button onClick={() => setShowEditModal(true)}>Edit Company Info</Button>
       </div>
@@ -255,15 +255,15 @@ export default function CompanyEditPage() {
                 className="w-16 h-16 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-primary-100 flex items-center justify-center">
-                <span className="text-2xl font-bold text-primary-600">
+              <div className="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                   {company.name.charAt(0)}
                 </span>
               </div>
             )}
             <div>
-              <p className="text-gray-600">{company.description || 'No description'}</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-gray-600 dark:text-dark-300">{company.description || 'No description'}</p>
+              <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
                 Review link: <span className="font-mono">/review/{company.slug}</span>
               </p>
             </div>
@@ -272,15 +272,15 @@ export default function CompanyEditPage() {
           {/* QR Code */}
           <div className="text-center">
             <QRCode url={reviewUrl} size={100} />
-            <p className="text-xs text-gray-500 mt-2">Scan for review page</p>
+            <p className="text-xs text-gray-500 dark:text-dark-400 mt-2">Scan for review page</p>
           </div>
         </div>
       </Card>
 
       {/* Descriptors Section */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Review Descriptors</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Review Descriptors</h2>
+        <p className="text-gray-600 dark:text-dark-400 mb-6">
           These are the phrases customers can select when writing reviews.
           Organize them into categories for better UX.
         </p>
@@ -313,12 +313,12 @@ export default function CompanyEditPage() {
                     </Button>
                   </div>
                 ) : (
-                  <h3 className="font-semibold text-gray-900">{category.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{category.name}</h3>
                 )}
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setEditingCategory(category.id)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded"
                     title="Rename category"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +327,7 @@ export default function CompanyEditPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(category.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 rounded"
                     title="Delete category"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,12 +342,12 @@ export default function CompanyEditPage() {
                 {category.descriptors.map((descriptor) => (
                   <div
                     key={descriptor.id}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm group"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-dark-700 rounded-full text-sm text-gray-800 dark:text-dark-200 group"
                   >
                     <span>{descriptor.text}</span>
                     <button
                       onClick={() => handleDeleteDescriptor(category.id, descriptor.id)}
-                      className="p-0.5 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="p-0.5 text-gray-400 hover:text-red-600 dark:text-dark-400 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -356,7 +356,7 @@ export default function CompanyEditPage() {
                   </div>
                 ))}
                 {category.descriptors.length === 0 && (
-                  <p className="text-sm text-gray-400 italic">No descriptors yet</p>
+                  <p className="text-sm text-gray-400 dark:text-dark-500 italic">No descriptors yet</p>
                 )}
               </div>
 
