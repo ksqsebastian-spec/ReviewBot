@@ -58,7 +58,7 @@ export default function EmailListPage() {
 
         setSubscribers(subscriberData || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        // Error handled by state
       } finally {
         setLoading(false);
       }
@@ -109,7 +109,7 @@ export default function EmailListPage() {
 
       setSubscribers((prev) => prev.filter((s) => s.id !== subscriberId));
     } catch (err) {
-      console.error('Error unsubscribing:', err);
+      // Silently fail - user can retry
     }
   }
 

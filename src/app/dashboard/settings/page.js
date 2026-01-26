@@ -67,7 +67,7 @@ export default function SettingsPage() {
           setSettings(data);
         }
       } catch (err) {
-        console.error('Error fetching settings:', err);
+        // Error handled silently
       } finally {
         setLoading(false);
       }
@@ -100,7 +100,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      console.error('Error saving settings:', err);
+      // Silently fail - user sees no success message
     } finally {
       setSaving(false);
     }

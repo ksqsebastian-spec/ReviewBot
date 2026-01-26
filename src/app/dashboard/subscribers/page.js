@@ -59,7 +59,7 @@ export default function SubscribersPage() {
 
         if (subError) {
           // If new table doesn't exist, fall back to old email_subscribers
-          console.log('Falling back to old email_subscribers table');
+          // Fallback to old table
           const { data: oldData, error: oldError } = await supabase
             .from('email_subscribers')
             .select(`
@@ -97,7 +97,7 @@ export default function SubscribersPage() {
           setSubscribers(subscriberData || []);
         }
       } catch (err) {
-        console.error('Error fetching subscribers:', err);
+        // Error handled by state
       } finally {
         setLoading(false);
       }
@@ -133,7 +133,7 @@ export default function SubscribersPage() {
         prev.map((s) => (s.id === subscriberId ? { ...s, is_active: false } : s))
       );
     } catch (err) {
-      console.error('Error deactivating subscriber:', err);
+      // Silently fail - user can retry
     }
   };
 

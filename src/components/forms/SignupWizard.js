@@ -73,7 +73,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
       if (error) throw error;
       setCompanies(data || []);
     } catch (err) {
-      console.error('Error fetching companies:', err);
+      // Silently fail - companies will show empty
     } finally {
       setLoadingCompanies(false);
     }
@@ -128,7 +128,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
       }
       setStep(2);
     } catch (err) {
-      console.log('New subscriber');
+      // New subscriber - continue to step 2
       setStep(2);
     } finally {
       setLoading(false);
@@ -218,7 +218,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
                 name: formData.name.trim() || null,
               });
             } catch (err) {
-              console.log('Already subscribed to company:', companyId);
+              // Already subscribed - continue silently
             }
           }
           setStep(4);
@@ -250,7 +250,6 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
 
       setStep(4);
     } catch (err) {
-      console.error('Error saving subscription:', err);
       setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
       setLoading(false);

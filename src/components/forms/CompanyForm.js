@@ -66,19 +66,19 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
 
     // Validation
     if (!formData.name.trim()) {
-      setError('Company name is required');
+      setError('Unternehmensname ist erforderlich');
       setLoading(false);
       return;
     }
     if (!formData.google_review_link.trim()) {
-      setError('Google review link is required');
+      setError('Google Bewertungslink ist erforderlich');
       setLoading(false);
       return;
     }
 
     // Handle case when Supabase isn't initialized
     if (!supabase) {
-      setError('Database connection not available. Please check configuration.');
+      setError('Datenbankverbindung nicht verfügbar. Bitte Konfiguration prüfen.');
       setLoading(false);
       return;
     }
@@ -128,12 +128,11 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
 
       onSuccess?.(savedCompany);
     } catch (err) {
-      console.error('Error saving company:', err);
       // Handle duplicate slug error
       if (err.code === '23505') {
-        setError('A company with this URL slug already exists. Please use a different name.');
+        setError('Ein Unternehmen mit dieser URL existiert bereits. Bitte anderen Namen verwenden.');
       } else {
-        setError('Failed to save company. Please try again.');
+        setError('Unternehmen konnte nicht gespeichert werden. Bitte erneut versuchen.');
       }
     } finally {
       setLoading(false);
@@ -155,8 +154,7 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
         .single();
 
       if (categoryError) {
-        console.error('Error creating category:', categoryError);
-        continue;
+        continue; // Skip failed category silently
       }
 
       // Create descriptors for this category
@@ -170,7 +168,7 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
         .insert(descriptors);
 
       if (descriptorError) {
-        console.error('Error creating descriptors:', descriptorError);
+        // Continue silently - some descriptors may have been created
       }
     }
   }

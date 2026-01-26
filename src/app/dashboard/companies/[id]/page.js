@@ -74,7 +74,7 @@ export default function CompanyEditPage() {
         if (categoryError) throw categoryError;
         setCategories(categoryData || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        // Error handled by state
       } finally {
         setLoading(false);
       }
@@ -111,7 +111,7 @@ export default function CompanyEditPage() {
       setCategories((prev) => [...prev, { ...data, descriptors: [] }]);
       setNewCategoryName('');
     } catch (err) {
-      console.error('Error adding category:', err);
+      // Silently fail
     }
   }
 
@@ -129,7 +129,7 @@ export default function CompanyEditPage() {
       );
       setEditingCategory(null);
     } catch (err) {
-      console.error('Error updating category:', err);
+      // Silently fail
     }
   }
 
@@ -146,7 +146,7 @@ export default function CompanyEditPage() {
 
       setCategories((prev) => prev.filter((cat) => cat.id !== categoryId));
     } catch (err) {
-      console.error('Error deleting category:', err);
+      // Silently fail
     }
   }
 
@@ -175,7 +175,7 @@ export default function CompanyEditPage() {
       );
       setNewDescriptor({ categoryId: null, text: '' });
     } catch (err) {
-      console.error('Error adding descriptor:', err);
+      // Silently fail
     }
   }
 
@@ -196,7 +196,7 @@ export default function CompanyEditPage() {
         )
       );
     } catch (err) {
-      console.error('Error deleting descriptor:', err);
+      // Silently fail
     }
   }
 

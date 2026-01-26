@@ -97,7 +97,7 @@ export default function DashboardPage() {
           });
         }
       } catch (err) {
-        console.error('Error fetching stats:', err);
+        // Error handled by state
       } finally {
         setLoading(false);
       }
