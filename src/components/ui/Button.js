@@ -41,17 +41,19 @@ export default function Button({
     focus:outline-none focus:ring-2 focus:ring-offset-2
     transition-colors duration-200
     disabled:opacity-50 disabled:cursor-not-allowed
-    dark:focus:ring-offset-gray-900
+    dark:focus:ring-offset-dark-900
   `;
 
-  // Variant-specific styles with dark mode support
+  // Variant-specific styles with warm dark mode
+  // Primary buttons: high contrast green that stands out
+  // Secondary: visible border on warm dark background
   const variantStyles = {
     primary: `bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500
-              dark:bg-primary-500 dark:hover:bg-primary-600`,
+              dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-dark-950 dark:focus:ring-primary-400`,
     secondary: `bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500
-                dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700`,
+                dark:bg-dark-800 dark:text-dark-100 dark:border-dark-500 dark:hover:bg-dark-700`,
     danger: `bg-red-600 text-white hover:bg-red-700 focus:ring-red-500
-             dark:bg-red-500 dark:hover:bg-red-600`,
+             dark:bg-red-500 dark:hover:bg-red-400 dark:text-dark-950`,
   };
 
   return (

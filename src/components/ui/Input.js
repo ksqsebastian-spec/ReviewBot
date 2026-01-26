@@ -45,7 +45,7 @@ const Input = forwardRef(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-1"
         >
           {label}
         </label>
@@ -60,8 +60,9 @@ const Input = forwardRef(function Input(
           w-full px-3 py-2 border rounded-lg bg-white text-gray-900
           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
           placeholder-gray-400
-          dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500
-          ${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'}
+          dark:bg-dark-800 dark:text-dark-100 dark:placeholder-dark-400
+          dark:focus:ring-primary-400
+          ${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-dark-600'}
           ${className}
         `}
         {...props}
