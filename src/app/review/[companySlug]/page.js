@@ -44,6 +44,13 @@ export default function ReviewPage() {
   // Fetch company and descriptors on mount
   useEffect(() => {
     async function fetchData() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setError('Database connection not available. Please check configuration.');
+        setLoading(false);
+        return;
+      }
+
       try {
         // First, get the company by slug
         const { data: companyData, error: companyError } = await supabase
@@ -127,7 +134,7 @@ export default function ReviewPage() {
 
   // Track when review is copied (for analytics)
   const handleCopy = async () => {
-    if (!company) return;
+    if (!company || !supabase) return;
 
     try {
       // Record the generated review for analytics

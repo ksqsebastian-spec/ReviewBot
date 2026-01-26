@@ -28,6 +28,12 @@ export default function EmailListPage() {
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
+      // Handle case when Supabase isn't initialized (during build)
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Fetch companies for filter dropdown
         const { data: companyData } = await supabase

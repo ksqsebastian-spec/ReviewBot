@@ -40,6 +40,12 @@ export default function CompaniesPage() {
   }, [showNewModal]);
 
   async function fetchCompanies() {
+    // Handle case when Supabase isn't initialized (during build)
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('companies')

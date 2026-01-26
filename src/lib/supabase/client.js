@@ -14,18 +14,31 @@ import { createClient } from '@supabase/supabase-js';
   NEXT_PUBLIC_ prefix:
   Next.js only exposes env variables starting with NEXT_PUBLIC_ to the browser.
   This is a security feature - other env vars stay server-side only.
+
+  BUILD TIME NOTE:
+  During Next.js build/prerender, env vars may not be available.
+  We handle this gracefully to allow static generation to complete.
 */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Validate that env variables are set
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Check your .env.local file.'
-  );
-}
+// Create the Supabase client only if env vars are available
+// During build time, this may be null - pages should handle this gracefully
+export const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
-// Create and export the Supabase client
-// This is a singleton - the same instance is reused across your app
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+/**
+ * Helper to get supabase client with runtime validation
+ * Use this in components that need guaranteed access
+ * @returns {import('@supabase/supabase-js').SupabaseClient}
+ */
+export function getSupabase() {
+  if (!supabase) {
+    throw new Error(
+      'Supabase client not initialized. Check your environment variables.'
+    );
+  }
+  return supabase;
+}
