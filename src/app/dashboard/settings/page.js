@@ -178,8 +178,8 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-2xl">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.settingsTitle}</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t.settingsTitle}</h1>
+        <p className="text-gray-600 dark:text-dark-400 mt-1">
           {settings.default_language === 'de'
             ? 'App-weite Konfiguration'
             : 'App-wide configuration'}
@@ -188,7 +188,7 @@ export default function SettingsPage() {
 
       {/* Language Settings */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.languageLabel}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.languageLabel}</h2>
         <div className="space-y-3">
           {Object.values(LANGUAGES).map((lang) => (
             <label
@@ -196,8 +196,8 @@ export default function SettingsPage() {
               className={`
                 flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
                 ${settings.default_language === lang.code
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
+                  : 'border-gray-200 hover:border-gray-300 dark:border-dark-600 dark:hover:border-dark-500'
                 }
               `}
             >
@@ -209,7 +209,7 @@ export default function SettingsPage() {
                 onChange={() => handleChange('default_language', lang.code)}
                 className="w-4 h-4 text-primary-600"
               />
-              <span className="font-medium">{lang.nativeName}</span>
+              <span className="font-medium dark:text-dark-100">{lang.nativeName}</span>
             </label>
           ))}
         </div>
@@ -217,20 +217,21 @@ export default function SettingsPage() {
 
       {/* Notification Settings */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {settings.default_language === 'de' ? 'Benachrichtigungen' : 'Notifications'}
         </h2>
 
         <div className="space-y-4">
           {/* Default Interval */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {t.defaultIntervalLabel}
             </label>
             <select
               value={settings.default_notification_interval_days}
               onChange={(e) => handleChange('default_notification_interval_days', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500
+                         dark:bg-dark-800 dark:border-dark-600 dark:text-dark-100"
             >
               {NOTIFICATION_INTERVALS.map((interval) => (
                 <option key={interval.value} value={interval.value}>
@@ -242,7 +243,7 @@ export default function SettingsPage() {
 
           {/* Minimum Days Between Emails */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {settings.default_language === 'de'
                 ? 'Minimale Tage zwischen E-Mails'
                 : 'Minimum days between emails'}
@@ -254,7 +255,7 @@ export default function SettingsPage() {
               value={settings.min_days_between_emails}
               onChange={(e) => handleChange('min_days_between_emails', parseInt(e.target.value) || 3)}
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
               {settings.default_language === 'de'
                 ? 'Verhindert Spam durch Begrenzung der E-Mail-Häufigkeit'
                 : 'Prevents spam by limiting email frequency'}
@@ -265,12 +266,12 @@ export default function SettingsPage() {
 
       {/* Email Settings */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.emailSettingsTitle}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.emailSettingsTitle}</h2>
 
         <div className="space-y-4">
           {/* From Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {settings.default_language === 'de' ? 'Absendername' : 'From Name'}
             </label>
             <Input
@@ -282,7 +283,7 @@ export default function SettingsPage() {
 
           {/* From Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {settings.default_language === 'de' ? 'Absenderadresse' : 'From Address'}
             </label>
             <Input
@@ -291,7 +292,7 @@ export default function SettingsPage() {
               onChange={(e) => handleChange('email_from_address', e.target.value)}
               placeholder="noreply@yourdomain.com"
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
               {settings.default_language === 'de'
                 ? 'Wird für Gmail SMTP verwendet'
                 : 'Used for Gmail SMTP'}
@@ -301,15 +302,15 @@ export default function SettingsPage() {
       </Card>
 
       {/* Test Email Section */}
-      <Card className="border-amber-200 bg-amber-50">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {settings.default_language === 'de' ? 'E-Mail-Test' : 'Email Testing'}
         </h2>
 
         <div className="space-y-4">
           {/* Send Test Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {settings.default_language === 'de'
                 ? 'Test-E-Mail senden'
                 : 'Send Test Email'}
@@ -331,23 +332,23 @@ export default function SettingsPage() {
               </Button>
             </div>
             {testResult && (
-              <p className={`text-sm mt-2 ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-sm mt-2 ${testResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {testResult.message}
               </p>
             )}
           </div>
 
           {/* Divider */}
-          <hr className="border-amber-200" />
+          <hr className="border-amber-200 dark:border-amber-900" />
 
           {/* Send Due Emails */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
               {settings.default_language === 'de'
                 ? 'Fällige E-Mails jetzt senden'
                 : 'Send Due Emails Now'}
             </label>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-gray-600 dark:text-dark-300 mb-3">
               {settings.default_language === 'de'
                 ? 'Sendet E-Mails an alle Abonnenten, deren Benachrichtigungszeit erreicht ist.'
                 : 'Sends emails to all subscribers whose notification time has passed.'}
@@ -362,15 +363,15 @@ export default function SettingsPage() {
                 : 'Send Due Emails'}
             </Button>
             {dueResult && (
-              <p className={`text-sm mt-2 ${dueResult.success ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-sm mt-2 ${dueResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {dueResult.message}
               </p>
             )}
           </div>
 
           {/* Test Intervals Info */}
-          <div className="bg-white rounded-lg p-3 text-sm text-gray-600">
-            <p className="font-medium text-gray-700 mb-1">
+          <div className="bg-white dark:bg-dark-800 rounded-lg p-3 text-sm text-gray-600 dark:text-dark-300">
+            <p className="font-medium text-gray-700 dark:text-dark-200 mb-1">
               {settings.default_language === 'de' ? 'Test-Intervalle:' : 'Test Intervals:'}
             </p>
             <ul className="list-disc list-inside">
@@ -380,7 +381,7 @@ export default function SettingsPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-gray-500 dark:text-dark-400">
               {settings.default_language === 'de'
                 ? 'Wählen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.'
                 : 'Select these during signup to receive emails immediately or in 2 minutes.'}

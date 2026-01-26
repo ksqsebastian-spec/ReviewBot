@@ -116,8 +116,8 @@ export default function AnalyticsPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+        <p className="text-gray-600 dark:text-dark-400 mt-1">
           Track your review generation performance
         </p>
       </div>
@@ -125,27 +125,27 @@ export default function AnalyticsPage() {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <p className="text-sm text-gray-600">Reviews Generated</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalReviews}</p>
+          <p className="text-sm text-gray-600 dark:text-dark-400">Reviews Generated</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalReviews}</p>
         </Card>
 
         <Card>
-          <p className="text-sm text-gray-600">Reviews Copied</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{stats.copiedReviews}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-sm text-gray-600 dark:text-dark-400">Reviews Copied</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.copiedReviews}</p>
+          <p className="text-xs text-gray-500 dark:text-dark-500 mt-1">
             {conversionRate}% conversion rate
           </p>
         </Card>
 
         <Card>
-          <p className="text-sm text-gray-600">Email Subscribers</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalSubscribers}</p>
+          <p className="text-sm text-gray-600 dark:text-dark-400">Email Subscribers</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalSubscribers}</p>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-          <p className="text-sm text-green-700">Est. SEO Impact</p>
-          <p className="text-3xl font-bold text-green-800 mt-1">+{estimatedSeoBoost}%</p>
-          <p className="text-xs text-green-600 mt-1">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 dark:from-green-950/40 dark:to-emerald-950/40 dark:border-green-900">
+          <p className="text-sm text-green-700 dark:text-green-400">Est. SEO Impact</p>
+          <p className="text-3xl font-bold text-green-800 dark:text-green-300 mt-1">+{estimatedSeoBoost}%</p>
+          <p className="text-xs text-green-600 dark:text-green-500 mt-1">
             Local search visibility
           </p>
         </Card>
@@ -153,21 +153,21 @@ export default function AnalyticsPage() {
 
       {/* Reviews by Company */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Reviews by Company</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Reviews by Company</h2>
         {stats.reviewsByCompany.length === 0 ? (
-          <p className="text-gray-500 text-sm">No reviews yet</p>
+          <p className="text-gray-500 dark:text-dark-400 text-sm">No reviews yet</p>
         ) : (
           <div className="space-y-3">
             {stats.reviewsByCompany.map((company, index) => (
               <div key={index} className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{company.name}</span>
-                    <span className="text-sm text-gray-500">{company.count} reviews</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-dark-200">{company.name}</span>
+                    <span className="text-sm text-gray-500 dark:text-dark-400">{company.count} reviews</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-dark-700 rounded-full h-2">
                     <div
-                      className="bg-primary-600 h-2 rounded-full"
+                      className="bg-primary-600 dark:bg-primary-500 h-2 rounded-full"
                       style={{
                         width: `${stats.totalReviews > 0 ? (company.count / stats.totalReviews) * 100 : 0}%`,
                       }}
@@ -182,47 +182,47 @@ export default function AnalyticsPage() {
 
       {/* Growth Projection */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Projected Growth</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Projected Growth</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">If you get 10 more reviews</p>
-            <p className="text-2xl font-bold text-gray-900">+20%</p>
-            <p className="text-xs text-gray-500">local search visibility</p>
+          <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 10 more reviews</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">+20%</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">If you get 25 more reviews</p>
-            <p className="text-2xl font-bold text-gray-900">+50%</p>
-            <p className="text-xs text-gray-500">local search visibility</p>
+          <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 25 more reviews</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">+50%</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">If you get 50 more reviews</p>
-            <p className="text-2xl font-bold text-gray-900">+100%</p>
-            <p className="text-xs text-gray-500">local search visibility</p>
+          <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 50 more reviews</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">+100%</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
           </div>
         </div>
-        <p className="text-xs text-gray-500 mt-4">
+        <p className="text-xs text-gray-500 dark:text-dark-500 mt-4">
           * Estimates based on typical Google local ranking factors. Actual results may vary.
         </p>
       </Card>
 
       {/* Recent Activity */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Reviews</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Reviews</h2>
         {recentReviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">No reviews generated yet</p>
+          <p className="text-gray-500 dark:text-dark-400 text-sm">No reviews generated yet</p>
         ) : (
           <div className="space-y-4">
             {recentReviews.map((review) => (
-              <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+              <div key={review.id} className="border-b border-gray-100 dark:border-dark-700 pb-4 last:border-0 last:pb-0">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-dark-200">
                     {review.companies?.name || 'Unknown'}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-dark-500">
                     {new Date(review.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">{review.review_text}</p>
+                <p className="text-sm text-gray-600 dark:text-dark-300 line-clamp-2">{review.review_text}</p>
               </div>
             ))}
           </div>
@@ -230,23 +230,23 @@ export default function AnalyticsPage() {
       </Card>
 
       {/* Tips for More Reviews */}
-      <Card className="bg-amber-50 border-amber-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Tips for More Reviews</h2>
-        <ul className="space-y-2 text-sm text-gray-700">
+      <Card className="bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tips for More Reviews</h2>
+        <ul className="space-y-2 text-sm text-gray-700 dark:text-dark-200">
           <li className="flex items-start gap-2">
-            <span className="text-amber-500 mt-0.5">•</span>
+            <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
             <span>Place QR codes at checkout, reception, or on receipts</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-amber-500 mt-0.5">•</span>
+            <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
             <span>Ask satisfied customers directly to leave a review</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-amber-500 mt-0.5">•</span>
+            <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
             <span>Send follow-up emails 1-2 days after service</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-amber-500 mt-0.5">•</span>
+            <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
             <span>Respond to all reviews (positive and negative)</span>
           </li>
         </ul>

@@ -145,9 +145,9 @@ export default function DashboardPage() {
   ];
 
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    amber: 'bg-amber-50 text-amber-600',
+    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+    green: 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    amber: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
   };
 
   // Filter stat cards when company is selected
@@ -160,10 +160,10 @@ export default function DashboardPage() {
       {/* Page Header with Company Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {selectedCompanyName ? selectedCompanyName : 'Dashboard'}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-dark-400 mt-1">
             {selectedCompanyId
               ? 'Statistiken für ausgewähltes Unternehmen'
               : 'Übersicht Ihrer Review-Plattform'}
@@ -185,8 +185,8 @@ export default function DashboardPage() {
                   {stat.icon}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 dark:text-dark-400">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {loading ? '...' : stat.value}
                   </p>
                 </div>
@@ -198,35 +198,37 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Schnellaktionen</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Schnellaktionen</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link
             href="/dashboard/companies?action=new"
-            className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors
+                       dark:border-dark-700 dark:hover:border-primary-700 dark:hover:bg-primary-900/20"
           >
-            <div className="p-2 bg-primary-100 rounded-lg text-primary-600">
+            <div className="p-2 bg-primary-100 rounded-lg text-primary-600 dark:bg-primary-900/40 dark:text-primary-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Neues Unternehmen</p>
-              <p className="text-sm text-gray-500">Neues Unternehmen für Bewertungen einrichten</p>
+              <p className="font-medium text-gray-900 dark:text-white">Neues Unternehmen</p>
+              <p className="text-sm text-gray-500 dark:text-dark-400">Neues Unternehmen für Bewertungen einrichten</p>
             </div>
           </Link>
 
           <Link
             href="/dashboard/subscribers"
-            className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors
+                       dark:border-dark-700 dark:hover:border-primary-700 dark:hover:bg-primary-900/20"
           >
-            <div className="p-2 bg-green-100 rounded-lg text-green-600">
+            <div className="p-2 bg-green-100 rounded-lg text-green-600 dark:bg-green-900/40 dark:text-green-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Abonnenten anzeigen</p>
-              <p className="text-sm text-gray-500">E-Mail-Liste verwalten</p>
+              <p className="font-medium text-gray-900 dark:text-white">Abonnenten anzeigen</p>
+              <p className="text-sm text-gray-500 dark:text-dark-400">E-Mail-Liste verwalten</p>
             </div>
           </Link>
         </div>
@@ -234,14 +236,14 @@ export default function DashboardPage() {
 
       {/* Getting Started Guide (shown when no companies) */}
       {!loading && stats.companies === 0 && !selectedCompanyId && (
-        <Card className="border-primary-200 bg-primary-50">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+        <Card className="border-primary-200 bg-primary-50 dark:border-primary-900 dark:bg-primary-950/30">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Erste Schritte
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-dark-300 mb-4">
             Willkommen bei Review Bot! So richten Sie Ihr erstes Unternehmen ein:
           </p>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700">
+          <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-dark-200">
             <li>Klicken Sie oben auf &quot;Neues Unternehmen&quot;</li>
             <li>Geben Sie den Firmennamen und den Google-Bewertungslink ein</li>
             <li>Fügen Sie Beschreibungen hinzu, die Kunden auswählen können</li>

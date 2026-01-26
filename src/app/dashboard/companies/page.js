@@ -98,8 +98,8 @@ function CompaniesContent() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Companies</h1>
+          <p className="text-gray-600 dark:text-dark-400 mt-1">
             Manage your businesses and their review settings
           </p>
         </div>
@@ -122,7 +122,7 @@ function CompaniesContent() {
       {!loading && companies.length === 0 && (
         <Card className="text-center py-12">
           <svg
-            className="w-16 h-16 text-gray-300 mx-auto mb-4"
+            className="w-16 h-16 text-gray-300 dark:text-dark-600 mx-auto mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -134,10 +134,10 @@ function CompaniesContent() {
               d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
             />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             No companies yet
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 dark:text-dark-400 mb-4">
             Get started by adding your first company.
           </p>
           <Button onClick={() => setShowModal(true)}>Add Your First Company</Button>
@@ -159,8 +159,8 @@ function CompaniesContent() {
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center">
-                      <span className="text-xl font-bold text-primary-600">
+                    <div className="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                      <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
                         {company.name.charAt(0)}
                       </span>
                     </div>
@@ -168,8 +168,8 @@ function CompaniesContent() {
 
                   {/* Company info */}
                   <div>
-                    <h3 className="font-semibold text-gray-900">{company.name}</h3>
-                    <p className="text-sm text-gray-500">/review/{company.slug}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{company.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-dark-400">/review/{company.slug}</p>
                   </div>
                 </div>
 
@@ -178,7 +178,7 @@ function CompaniesContent() {
                   <Link
                     href={`/review/${company.slug}`}
                     target="_blank"
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded-lg"
                     title="View review page"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +187,7 @@ function CompaniesContent() {
                   </Link>
                   <Link
                     href={`/dashboard/companies/${company.id}`}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded-lg"
                     title="Edit company"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +196,7 @@ function CompaniesContent() {
                   </Link>
                   <button
                     onClick={() => setDeleteConfirm(company)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 rounded-lg"
                     title="Delete company"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,11 +222,11 @@ function CompaniesContent() {
         title="Delete Company"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
-            Are you sure you want to delete <strong>{deleteConfirm?.name}</strong>?
+          <p className="text-gray-600 dark:text-dark-300">
+            Are you sure you want to delete <strong className="text-gray-900 dark:text-white">{deleteConfirm?.name}</strong>?
             This will also delete all associated descriptors and data.
           </p>
-          <p className="text-sm text-red-600">This action cannot be undone.</p>
+          <p className="text-sm text-red-600 dark:text-red-400">This action cannot be undone.</p>
           <div className="flex gap-3 pt-2">
             <Button variant="danger" onClick={() => handleDelete(deleteConfirm?.id)}>
               Delete Company
