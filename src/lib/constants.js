@@ -80,3 +80,121 @@ export const MESSAGES = {
     generic: 'Something went wrong. Please try again.',
   },
 };
+
+// ============================================
+// LANGUAGE SETTINGS
+// ============================================
+export const LANGUAGES = {
+  de: {
+    code: 'de',
+    name: 'Deutsch',
+    nativeName: 'Deutsch',
+  },
+  en: {
+    code: 'en',
+    name: 'English',
+    nativeName: 'English',
+  },
+};
+
+export const DEFAULT_LANGUAGE = 'de';
+
+// ============================================
+// NOTIFICATION INTERVAL OPTIONS
+// ============================================
+export const NOTIFICATION_INTERVALS = [
+  { value: 7, label: { de: 'Wöchentlich', en: 'Weekly' } },
+  { value: 14, label: { de: 'Alle 2 Wochen', en: 'Every 2 weeks' } },
+  { value: 30, label: { de: 'Monatlich', en: 'Monthly' } },
+  { value: 60, label: { de: 'Alle 2 Monate', en: 'Every 2 months' } },
+  { value: 90, label: { de: 'Vierteljährlich', en: 'Quarterly' } },
+];
+
+export const DEFAULT_NOTIFICATION_INTERVAL = 30;
+
+// ============================================
+// TIME SLOT OPTIONS
+// ============================================
+export const TIME_SLOTS = [
+  { value: 'morning', label: { de: 'Morgens (9-12 Uhr)', en: 'Morning (9am-12pm)' } },
+  { value: 'afternoon', label: { de: 'Nachmittags (12-17 Uhr)', en: 'Afternoon (12pm-5pm)' } },
+  { value: 'evening', label: { de: 'Abends (17-20 Uhr)', en: 'Evening (5pm-8pm)' } },
+];
+
+// ============================================
+// UI TEXT (Bilingual)
+// ============================================
+export const UI_TEXT = {
+  de: {
+    // Navigation
+    dashboard: 'Dashboard',
+    companies: 'Unternehmen',
+    subscribers: 'Abonnenten',
+    emailList: 'E-Mail-Liste',
+    analytics: 'Analytik',
+    settings: 'Einstellungen',
+    qrCode: 'QR-Code',
+
+    // Common actions
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    delete: 'Löschen',
+    edit: 'Bearbeiten',
+    add: 'Hinzufügen',
+    back: 'Zurück',
+    next: 'Weiter',
+    submit: 'Absenden',
+    loading: 'Laden...',
+
+    // Settings page
+    settingsTitle: 'Einstellungen',
+    languageLabel: 'Sprache',
+    defaultIntervalLabel: 'Standard-Benachrichtigungsintervall',
+    emailSettingsTitle: 'E-Mail-Einstellungen',
+    savedSuccessfully: 'Erfolgreich gespeichert!',
+
+    // QR Panel
+    selectCompany: 'Unternehmen auswählen',
+    reviewPage: 'Bewertungsseite',
+    signupPage: 'Anmeldeseite',
+    printQR: 'QR-Code drucken',
+    scanToReview: 'Scannen zum Bewerten',
+    scanToSignup: 'Scannen zum Anmelden',
+  },
+  en: {
+    // Navigation
+    dashboard: 'Dashboard',
+    companies: 'Companies',
+    subscribers: 'Subscribers',
+    emailList: 'Email List',
+    analytics: 'Analytics',
+    settings: 'Settings',
+    qrCode: 'QR Code',
+
+    // Common actions
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    add: 'Add',
+    back: 'Back',
+    next: 'Next',
+    submit: 'Submit',
+    loading: 'Loading...',
+
+    // Settings page
+    settingsTitle: 'Settings',
+    languageLabel: 'Language',
+    defaultIntervalLabel: 'Default notification interval',
+    emailSettingsTitle: 'Email Settings',
+    savedSuccessfully: 'Saved successfully!',
+
+    // QR Panel
+    selectCompany: 'Select company',
+    reviewPage: 'Review page',
+    signupPage: 'Signup page',
+    printQR: 'Print QR Code',
+    scanToReview: 'Scan to leave a review',
+    scanToSignup: 'Scan to sign up',
+  },
+};
