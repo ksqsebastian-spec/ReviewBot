@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
+import CompanySelector from '@/components/dashboard/CompanySelector';
 
 /*
   Dashboard Overview Page
@@ -11,14 +12,16 @@ import Card from '@/components/ui/Card';
   Shows quick stats and recent activity.
   This is the first page users see when entering the dashboard.
 
-  STATS DISPLAYED:
-  - Total companies
-  - Total email subscribers
-  - Total reviews generated
-  - Recent activity
+  FEATURES:
+  - Company selector to filter by specific company or view all
+  - Stats: companies, subscribers, reviews generated
+  - Quick actions for common tasks
+  - Getting started guide for new users
 */
 
 export default function DashboardPage() {
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedCompanyName, setSelectedCompanyName] = useState(null);
   const [stats, setStats] = useState({
     companies: 0,
     subscribers: 0,
@@ -26,27 +29,73 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
+  // Fetch stats based on selected company
   useEffect(() => {
     async function fetchStats() {
-      // Handle case when Supabase isn't initialized (during build)
       if (!supabase) {
         setLoading(false);
         return;
       }
 
       try {
-        // Fetch counts in parallel for better performance
-        const [companiesRes, subscribersRes, reviewsRes] = await Promise.all([
-          supabase.from('companies').select('id', { count: 'exact', head: true }),
-          supabase.from('email_subscribers').select('id', { count: 'exact', head: true }),
-          supabase.from('generated_reviews').select('id', { count: 'exact', head: true }),
-        ]);
+        if (selectedCompanyId) {
+          // Fetch stats for specific company
+          const [companyRes, subscribersRes, reviewsRes] = await Promise.all([
+            supabase.from('companies').select('name').eq('id', selectedCompanyId).single(),
+            // Check new subscribers table first, fall back to old email_subscribers
+            supabase
+              .from('subscriber_companies')
+              .select('id', { count: 'exact', head: true })
+              .eq('company_id', selectedCompanyId),
+            supabase
+              .from('generated_reviews')
+              .select('id', { count: 'exact', head: true })
+              .eq('company_id', selectedCompanyId),
+          ]);
 
-        setStats({
-          companies: companiesRes.count || 0,
-          subscribers: subscribersRes.count || 0,
-          reviews: reviewsRes.count || 0,
-        });
+          // If subscriber_companies fails, try old table
+          let subscriberCount = subscribersRes.count;
+          if (subscribersRes.error) {
+            const { count } = await supabase
+              .from('email_subscribers')
+              .select('id', { count: 'exact', head: true })
+              .eq('company_id', selectedCompanyId)
+              .eq('is_active', true);
+            subscriberCount = count || 0;
+          }
+
+          setSelectedCompanyName(companyRes.data?.name || null);
+          setStats({
+            companies: 1,
+            subscribers: subscriberCount || 0,
+            reviews: reviewsRes.count || 0,
+          });
+        } else {
+          // Fetch global stats
+          const [companiesRes, subscribersRes, reviewsRes] = await Promise.all([
+            supabase.from('companies').select('id', { count: 'exact', head: true }),
+            // Try new subscribers table first
+            supabase.from('subscribers').select('id', { count: 'exact', head: true }),
+            supabase.from('generated_reviews').select('id', { count: 'exact', head: true }),
+          ]);
+
+          // If subscribers table fails, try old email_subscribers
+          let subscriberCount = subscribersRes.count;
+          if (subscribersRes.error) {
+            const { count } = await supabase
+              .from('email_subscribers')
+              .select('id', { count: 'exact', head: true })
+              .eq('is_active', true);
+            subscriberCount = count || 0;
+          }
+
+          setSelectedCompanyName(null);
+          setStats({
+            companies: companiesRes.count || 0,
+            subscribers: subscriberCount || 0,
+            reviews: reviewsRes.count || 0,
+          });
+        }
       } catch (err) {
         console.error('Error fetching stats:', err);
       } finally {
@@ -54,12 +103,13 @@ export default function DashboardPage() {
       }
     }
 
+    setLoading(true);
     fetchStats();
-  }, []);
+  }, [selectedCompanyId]);
 
   const statCards = [
     {
-      label: 'Companies',
+      label: 'Unternehmen',
       value: stats.companies,
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,20 +118,21 @@ export default function DashboardPage() {
       ),
       href: '/dashboard/companies',
       color: 'blue',
+      hideWhenFiltered: true,
     },
     {
-      label: 'Email Subscribers',
+      label: 'Abonnenten',
       value: stats.subscribers,
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       ),
-      href: '/dashboard/email-list',
+      href: '/dashboard/subscribers',
       color: 'green',
     },
     {
-      label: 'Reviews Generated',
+      label: 'Bewertungen generiert',
       value: stats.reviews,
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,19 +150,34 @@ export default function DashboardPage() {
     amber: 'bg-amber-50 text-amber-600',
   };
 
+  // Filter stat cards when company is selected
+  const displayedStatCards = selectedCompanyId
+    ? statCards.filter((s) => !s.hideWhenFiltered)
+    : statCards;
+
   return (
     <div className="space-y-8">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">
-          Overview of your review generation platform
-        </p>
+      {/* Page Header with Company Selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {selectedCompanyName ? selectedCompanyName : 'Dashboard'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {selectedCompanyId
+              ? 'Statistiken für ausgewähltes Unternehmen'
+              : 'Übersicht Ihrer Review-Plattform'}
+          </p>
+        </div>
+        <CompanySelector
+          selectedCompanyId={selectedCompanyId}
+          onCompanyChange={setSelectedCompanyId}
+        />
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {statCards.map((stat) => (
+      <div className={`grid grid-cols-1 gap-6 ${selectedCompanyId ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+        {displayedStatCards.map((stat) => (
           <Link key={stat.label} href={stat.href}>
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4">
@@ -132,7 +198,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Schnellaktionen</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link
             href="/dashboard/companies?action=new"
@@ -144,13 +210,13 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Add New Company</p>
-              <p className="text-sm text-gray-500">Set up a new business for reviews</p>
+              <p className="font-medium text-gray-900">Neues Unternehmen</p>
+              <p className="text-sm text-gray-500">Neues Unternehmen für Bewertungen einrichten</p>
             </div>
           </Link>
 
           <Link
-            href="/dashboard/email-list"
+            href="/dashboard/subscribers"
             className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
           >
             <div className="p-2 bg-green-100 rounded-lg text-green-600">
@@ -159,27 +225,27 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">View Subscribers</p>
-              <p className="text-sm text-gray-500">Manage your email list</p>
+              <p className="font-medium text-gray-900">Abonnenten anzeigen</p>
+              <p className="text-sm text-gray-500">E-Mail-Liste verwalten</p>
             </div>
           </Link>
         </div>
       </Card>
 
       {/* Getting Started Guide (shown when no companies) */}
-      {!loading && stats.companies === 0 && (
+      {!loading && stats.companies === 0 && !selectedCompanyId && (
         <Card className="border-primary-200 bg-primary-50">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">
-            Getting Started
+            Erste Schritte
           </h2>
           <p className="text-gray-600 mb-4">
-            Welcome to Review Bot! Here&apos;s how to set up your first company:
+            Willkommen bei Review Bot! So richten Sie Ihr erstes Unternehmen ein:
           </p>
           <ol className="list-decimal list-inside space-y-2 text-gray-700">
-            <li>Click &quot;Add New Company&quot; above</li>
-            <li>Enter your business name and Google review link</li>
-            <li>Add service descriptors that customers can select</li>
-            <li>Share the review link with your customers</li>
+            <li>Klicken Sie oben auf &quot;Neues Unternehmen&quot;</li>
+            <li>Geben Sie den Firmennamen und den Google-Bewertungslink ein</li>
+            <li>Fügen Sie Beschreibungen hinzu, die Kunden auswählen können</li>
+            <li>Teilen Sie den Bewertungslink mit Ihren Kunden</li>
           </ol>
         </Card>
       )}

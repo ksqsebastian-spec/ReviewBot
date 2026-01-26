@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import EmailSignupForm from '@/components/forms/EmailSignupForm';
+import SignupWizard from '@/components/forms/SignupWizard';
 
 /*
   Email Signup Page
@@ -18,8 +18,10 @@ import EmailSignupForm from '@/components/forms/EmailSignupForm';
 
   FLOW:
   1. Customer scans QR code at business location
-  2. Enters email to get review reminders
-  3. Later receives email with review link
+  2. Multi-step wizard guides them through signup
+  3. Can subscribe to multiple companies
+  4. Set notification preferences (interval, time, language)
+  5. Later receives personalized email reminders
 */
 
 export default function SignupPage() {
@@ -34,7 +36,7 @@ export default function SignupPage() {
     async function fetchCompany() {
       // Handle case when Supabase isn't initialized (during build)
       if (!supabase) {
-        setError('Database connection not available. Please check configuration.');
+        setError('Datenbankverbindung nicht verfuegbar. Bitte pruefen Sie die Konfiguration.');
         setLoading(false);
         return;
       }
@@ -52,7 +54,7 @@ export default function SignupPage() {
         setCompany(data);
       } catch (err) {
         console.error('Error fetching company:', err);
-        setError('This company was not found. Please check the URL.');
+        setError('Dieses Unternehmen wurde nicht gefunden. Bitte pruefen Sie die URL.');
       } finally {
         setLoading(false);
       }
@@ -79,7 +81,7 @@ export default function SignupPage() {
         <Card className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Link href="/">
-            <Button>Back to Home</Button>
+            <Button>Zur Startseite</Button>
           </Link>
         </Card>
       </div>
@@ -93,7 +95,7 @@ export default function SignupPage() {
         {company.logo_url ? (
           <img
             src={company.logo_url}
-            alt={`${company.name} logo`}
+            alt={`${company.name} Logo`}
             className="w-20 h-20 rounded-lg object-cover mx-auto mb-4"
           />
         ) : (
@@ -105,25 +107,25 @@ export default function SignupPage() {
         )}
         <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
         <p className="text-gray-600 mt-2">
-          Stay connected and get reminders to share your experience
+          Bleiben Sie in Verbindung und erhalten Sie Erinnerungen, um Ihre Erfahrung zu teilen
         </p>
       </div>
 
-      {/* Signup Form Card */}
+      {/* Multi-Step Signup Wizard */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-          Get Review Reminders
-        </h2>
-        <EmailSignupForm companyId={company.id} companyName={company.name} />
+        <SignupWizard
+          initialCompanyId={company.id}
+          initialCompanyName={company.name}
+        />
       </Card>
 
       {/* Alternative: Leave review now */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500 mb-2">
-          Ready to leave a review now?
+          Moechten Sie jetzt eine Bewertung hinterlassen?
         </p>
         <Link href={`/review/${company.slug}`}>
-          <Button variant="secondary">Write a Review</Button>
+          <Button variant="secondary">Bewertung schreiben</Button>
         </Link>
       </div>
     </div>
