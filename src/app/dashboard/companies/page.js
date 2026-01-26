@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
@@ -17,9 +17,12 @@ import CompanyForm from '@/components/forms/CompanyForm';
   - Add new company (opens modal or uses URL param)
   - Edit company (navigates to edit page)
   - Delete company (with confirmation)
+
+  NOTE: useSearchParams requires Suspense boundary in Next.js 14+
+  We wrap the component that uses it in Suspense to allow static generation.
 */
 
-export default function CompaniesPage() {
+function CompaniesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showNewModal = searchParams.get('action') === 'new';
@@ -235,5 +238,18 @@ export default function CompaniesPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+// Wrap in Suspense to allow useSearchParams during static generation
+export default function CompaniesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200 border-t-primary-600"></div>
+      </div>
+    }>
+      <CompaniesContent />
+    </Suspense>
   );
 }
