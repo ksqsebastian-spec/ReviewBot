@@ -344,7 +344,7 @@ export default function SettingsPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {settings.default_language === 'de'
-                ? 'Faellige E-Mails jetzt senden'
+                ? 'Fällige E-Mails jetzt senden'
                 : 'Send Due Emails Now'}
             </label>
             <p className="text-sm text-gray-600 mb-3">
@@ -358,7 +358,7 @@ export default function SettingsPage() {
               variant="secondary"
             >
               {settings.default_language === 'de'
-                ? 'Faellige E-Mails senden'
+                ? 'Fällige E-Mails senden'
                 : 'Send Due Emails'}
             </Button>
             {dueResult && (
@@ -382,7 +382,7 @@ export default function SettingsPage() {
             </ul>
             <p className="mt-2 text-gray-500">
               {settings.default_language === 'de'
-                ? 'Waehlen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.'
+                ? 'Wählen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.'
                 : 'Select these during signup to receive emails immediately or in 2 minutes.'}
             </p>
           </div>

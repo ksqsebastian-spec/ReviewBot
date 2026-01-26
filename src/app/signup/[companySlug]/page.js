@@ -36,7 +36,7 @@ export default function SignupPage() {
     async function fetchCompany() {
       // Handle case when Supabase isn't initialized (during build)
       if (!supabase) {
-        setError('Datenbankverbindung nicht verfuegbar. Bitte pruefen Sie die Konfiguration.');
+        setError('Datenbankverbindung nicht verfügbar. Bitte prüfen Sie die Konfiguration.');
         setLoading(false);
         return;
       }
@@ -54,7 +54,7 @@ export default function SignupPage() {
         setCompany(data);
       } catch (err) {
         console.error('Error fetching company:', err);
-        setError('Dieses Unternehmen wurde nicht gefunden. Bitte pruefen Sie die URL.');
+        setError('Dieses Unternehmen wurde nicht gefunden. Bitte prüfen Sie die URL.');
       } finally {
         setLoading(false);
       }

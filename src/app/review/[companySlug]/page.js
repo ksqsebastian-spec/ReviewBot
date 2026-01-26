@@ -54,7 +54,7 @@ function ReviewPageContent() {
   useEffect(() => {
     async function fetchData() {
       if (!supabase) {
-        setError('Datenbankverbindung nicht verfuegbar.');
+        setError('Datenbankverbindung nicht verfügbar.');
         setLoading(false);
         return;
       }
@@ -232,13 +232,13 @@ function ReviewPageContent() {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Vielen Dank fuer Ihre Bewertung!
+            Vielen Dank für Ihre Bewertung!
           </h2>
           <p className="text-gray-600 mb-4">
-            Sie haben bereits eine Bewertung fuer {company.name} abgegeben.
+            Sie haben bereits eine Bewertung für {company.name} abgegeben.
           </p>
           <p className="text-sm text-gray-500">
-            Sie werden keine weiteren Erinnerungen fuer dieses Unternehmen erhalten.
+            Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
           </p>
         </Card>
       </div>
@@ -259,10 +259,10 @@ function ReviewPageContent() {
             Vielen Dank!
           </h2>
           <p className="text-gray-600 mb-4">
-            Ihre Bewertung fuer {company.name} wurde erfasst.
+            Ihre Bewertung für {company.name} wurde erfasst.
           </p>
           <p className="text-sm text-gray-500">
-            Sie werden keine weiteren Erinnerungen fuer dieses Unternehmen erhalten.
+            Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
           </p>
         </Card>
       </div>
@@ -281,7 +281,7 @@ function ReviewPageContent() {
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Zurueck
+          Zurück
         </Link>
 
         <div className="flex items-center gap-4">

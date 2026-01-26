@@ -69,8 +69,8 @@ function generateReviewReminderEmail({ subscriberName, companyName, reviewUrl, l
       intro: `Wir hoffen, Sie hatten eine gute Erfahrung bei ${companyName}.`,
       cta: 'Wuerden Sie sich einen Moment Zeit nehmen, um eine Bewertung zu hinterlassen?',
       button: 'Jetzt bewerten',
-      thanks: 'Vielen Dank fuer Ihre Unterstuetzung!',
-      footer: 'Sie erhalten diese E-Mail, weil Sie sich fuer Bewertungserinnerungen angemeldet haben.',
+      thanks: 'Vielen Dank für Ihre Unterstützung!',
+      footer: 'Sie erhalten diese E-Mail, weil Sie sich für Bewertungserinnerungen angemeldet haben.',
       unsubscribe: 'Abmelden',
     },
     en: {
