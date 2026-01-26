@@ -41,13 +41,17 @@ export default function Button({
     focus:outline-none focus:ring-2 focus:ring-offset-2
     transition-colors duration-200
     disabled:opacity-50 disabled:cursor-not-allowed
+    dark:focus:ring-offset-gray-900
   `;
 
-  // Variant-specific styles
+  // Variant-specific styles with dark mode support
   const variantStyles = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    primary: `bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500
+              dark:bg-primary-500 dark:hover:bg-primary-600`,
+    secondary: `bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500
+                dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700`,
+    danger: `bg-red-600 text-white hover:bg-red-700 focus:ring-red-500
+             dark:bg-red-500 dark:hover:bg-red-600`,
   };
 
   return (
@@ -55,6 +59,8 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      aria-busy={loading}
+      aria-disabled={disabled || loading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       {...props}
     >

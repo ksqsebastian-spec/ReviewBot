@@ -14,6 +14,11 @@ import { copyToClipboard } from '@/lib/utils';
   2. Temporary state change (shows "Copied!" then reverts)
   3. Error handling (clipboard API can fail)
 
+  ACCESSIBILITY:
+  - aria-label describes the action
+  - aria-live announces state changes to screen readers
+  - Icons marked aria-hidden
+
   USAGE:
   <CopyButton text="Text to copy" />
   <CopyButton text={reviewText} onCopy={() => trackCopyEvent()} />
@@ -33,9 +38,7 @@ export default function CopyButton({ text, onCopy, className = '' }) {
 
     if (success) {
       setCopied(true);
-      onCopy?.(); // Call callback if provided
-
-      // Reset after 2 seconds
+      onCopy?.();
       setTimeout(() => setCopied(false), 2000);
     }
   }
@@ -44,26 +47,29 @@ export default function CopyButton({ text, onCopy, className = '' }) {
     <button
       onClick={handleCopy}
       disabled={!text}
+      aria-label={copied ? 'Kopiert' : 'Bewertung kopieren'}
+      aria-live="polite"
       className={`
         inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium
         transition-all duration-200
         ${copied
-          ? 'bg-green-100 text-green-700'
-          : 'bg-primary-600 text-white hover:bg-primary-700'
+          ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+          : 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'
         }
         disabled:opacity-50 disabled:cursor-not-allowed
         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+        dark:focus:ring-offset-gray-900
         ${className}
       `}
     >
       {copied ? (
         <>
-          {/* Checkmark icon */}
           <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -72,16 +78,16 @@ export default function CopyButton({ text, onCopy, className = '' }) {
               d="M5 13l4 4L19 7"
             />
           </svg>
-          Copied!
+          Kopiert!
         </>
       ) : (
         <>
-          {/* Copy icon */}
           <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -90,7 +96,7 @@ export default function CopyButton({ text, onCopy, className = '' }) {
               d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
             />
           </svg>
-          Copy Review
+          Kopieren
         </>
       )}
     </button>
