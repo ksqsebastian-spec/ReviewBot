@@ -161,7 +161,7 @@ export async function POST(request) {
       // Get a company to use for the test
       const { data: company } = await supabase
         .from('companies')
-        .select('id, name, slug, google_review_url')
+        .select('id, name, slug')
         .limit(1)
         .single();
 
@@ -204,7 +204,7 @@ export async function POST(request) {
           subscriber_id,
           company_id,
           subscribers (id, email, name, preferred_language, is_active),
-          companies (id, name, slug, google_review_url)
+          companies (id, name, slug)
         `)
         .lte('next_notification_at', now)
         .is('review_completed_at', null);
@@ -292,7 +292,7 @@ export async function POST(request) {
           id,
           review_completed_at,
           subscribers (id, email, name, preferred_language, is_active),
-          companies (id, name, slug, google_review_url)
+          companies (id, name, slug)
         `)
         .eq('subscriber_id', subscriberId)
         .eq('company_id', companyId)
