@@ -32,7 +32,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <header className="bg-white dark:bg-dark-900 border-b border-gray-200 dark:border-dark-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo / App Name */}
@@ -60,8 +60,8 @@ export default function Header() {
                   className={`
                     px-3 py-2 rounded-lg text-sm font-medium transition-colors
                     ${isActive(link.href)
-                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
+                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-dark-200 dark:hover:text-white dark:hover:bg-dark-800'
                     }
                   `}
                   aria-current={isActive(link.href) ? 'page' : undefined}

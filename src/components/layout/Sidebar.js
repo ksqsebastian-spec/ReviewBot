@@ -79,11 +79,11 @@ export default function Sidebar() {
   const isActive = (href) => pathname === href;
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 min-h-[calc(100vh-4rem)] hidden md:block">
+    <aside className="w-64 bg-white dark:bg-dark-900 border-r border-gray-200 dark:border-dark-700 min-h-[calc(100vh-4rem)] hidden md:block">
       <nav className="p-4 space-y-6" aria-label="Dashboard-Navigation">
         {sections.map((section) => (
           <div key={section.title}>
-            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-dark-400 uppercase tracking-wider">
               {section.title}
             </h3>
             <ul className="mt-2 space-y-1">
@@ -95,8 +95,8 @@ export default function Sidebar() {
                       flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
                       transition-colors
                       ${isActive(link.href)
-                        ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                        : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
+                        ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300'
+                        : 'text-gray-700 hover:bg-gray-50 dark:text-dark-200 dark:hover:bg-dark-800'
                       }
                     `}
                     aria-current={isActive(link.href) ? 'page' : undefined}
@@ -104,7 +104,7 @@ export default function Sidebar() {
                     <span
                       className={isActive(link.href)
                         ? 'text-primary-600 dark:text-primary-400'
-                        : 'text-gray-400 dark:text-gray-500'
+                        : 'text-gray-400 dark:text-dark-400'
                       }
                       aria-hidden="true"
                     >

@@ -29,7 +29,7 @@ export default function Card({ children, className = '', as: Component = 'div', 
     <Component
       className={`
         bg-white rounded-xl shadow-sm border border-gray-200 p-6
-        dark:bg-gray-800 dark:border-gray-700
+        dark:bg-dark-900 dark:border-dark-700
         ${className}
       `}
       {...props}

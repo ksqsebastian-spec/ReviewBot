@@ -58,7 +58,7 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
           Bewertung hinterlassen
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 dark:text-dark-300 max-w-2xl mx-auto">
           Wählen Sie ein Unternehmen aus, um schnell eine professionelle Bewertung zu erstellen.
           Ihr Feedback hilft anderen bei ihrer Entscheidung.
         </p>
@@ -69,7 +69,7 @@ export default function HomePage() {
         <div className="flex justify-center py-12">
           <div
             className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600
-                       dark:border-primary-800 dark:border-t-primary-400"
+                       dark:border-primary-900 dark:border-t-primary-400"
             role="status"
             aria-label="Wird geladen"
           >
@@ -93,7 +93,7 @@ export default function HomePage() {
         <Card className="max-w-md mx-auto text-center">
           <div className="py-8">
             <svg
-              className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4"
+              className="w-16 h-16 text-gray-300 dark:text-dark-600 mx-auto mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -109,7 +109,7 @@ export default function HomePage() {
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               Noch keine Unternehmen
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
+            <p className="text-gray-500 dark:text-dark-400 mb-4">
               Fügen Sie Ihr erstes Unternehmen über das Dashboard hinzu.
             </p>
             <Link href="/dashboard/companies">
@@ -138,7 +138,7 @@ export default function HomePage() {
                       className="w-16 h-16 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
                       <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                         {company.name.charAt(0)}
                       </span>
@@ -151,7 +151,7 @@ export default function HomePage() {
                       {company.name}
                     </h3>
                     {company.description && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      <p className="text-sm text-gray-500 dark:text-dark-400 mt-1 line-clamp-2">
                         {company.description}
                       </p>
                     )}
@@ -159,7 +159,7 @@ export default function HomePage() {
 
                   {/* Arrow indicator */}
                   <svg
-                    className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors"
+                    className="w-5 h-5 text-gray-400 dark:text-dark-400 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
