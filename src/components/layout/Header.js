@@ -36,14 +36,32 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo / App Name */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2.5">
+            {/* Speech bubble with 5 stars - represents reviews + quality */}
             <svg
-              className="w-8 h-8 text-primary-600 dark:text-primary-400"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+              className="w-9 h-9"
+              viewBox="0 0 40 40"
+              fill="none"
               aria-hidden="true"
             >
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              {/* Speech bubble background */}
+              <path
+                d="M4 8C4 5.79086 5.79086 4 8 4H32C34.2091 4 36 5.79086 36 8V24C36 26.2091 34.2091 28 32 28H14L8 34V28H8C5.79086 28 4 26.2091 4 24V8Z"
+                className="fill-primary-500 dark:fill-primary-400"
+              />
+              {/* 5 Stars inside */}
+              <g className="fill-white dark:fill-dark-900">
+                {/* Star 1 */}
+                <path d="M8 14l.72 1.45 1.6.23-1.16 1.13.27 1.59L8 17.6l-1.43.8.27-1.59-1.16-1.13 1.6-.23L8 14z" />
+                {/* Star 2 */}
+                <path d="M14 14l.72 1.45 1.6.23-1.16 1.13.27 1.59-1.43-.8-1.43.8.27-1.59-1.16-1.13 1.6-.23L14 14z" />
+                {/* Star 3 */}
+                <path d="M20 14l.72 1.45 1.6.23-1.16 1.13.27 1.59-1.43-.8-1.43.8.27-1.59-1.16-1.13 1.6-.23L20 14z" />
+                {/* Star 4 */}
+                <path d="M26 14l.72 1.45 1.6.23-1.16 1.13.27 1.59-1.43-.8-1.43.8.27-1.59-1.16-1.13 1.6-.23L26 14z" />
+                {/* Star 5 */}
+                <path d="M32 14l.72 1.45 1.6.23-1.16 1.13.27 1.59-1.43-.8-1.43.8.27-1.59-1.16-1.13 1.6-.23L32 14z" />
+              </g>
             </svg>
             <span className="text-xl font-bold text-gray-900 dark:text-white">
               {APP_CONFIG.appName}
