@@ -108,8 +108,13 @@ export default function SettingsPage() {
 
   // Send test email to specific address
   const handleSendTestEmail = async () => {
-    if (!testEmail) {
-      setTestResult({ success: false, message: 'Bitte E-Mail-Adresse eingeben' });
+    if (!testEmail || !testEmail.includes('@')) {
+      setTestResult({
+        success: false,
+        message: settings.default_language === 'de'
+          ? 'Bitte geben Sie eine gültige E-Mail-Adresse ein.'
+          : 'Please enter a valid email address.',
+      });
       return;
     }
 
@@ -126,12 +131,27 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setTestResult({ success: true, message: `E-Mail gesendet an ${testEmail}` });
+        setTestResult({
+          success: true,
+          message: settings.default_language === 'de'
+            ? 'Test-E-Mail erfolgreich gesendet! Prüfen Sie Ihren Posteingang.'
+            : 'Test email sent successfully! Check your inbox.',
+        });
       } else {
-        setTestResult({ success: false, message: data.error || 'Fehler beim Senden' });
+        setTestResult({
+          success: false,
+          message: settings.default_language === 'de'
+            ? 'E-Mail konnte nicht gesendet werden. Bitte Verbindung prüfen.'
+            : 'Email could not be sent. Please check your connection.',
+        });
       }
     } catch (err) {
-      setTestResult({ success: false, message: err.message });
+      setTestResult({
+        success: false,
+        message: settings.default_language === 'de'
+          ? 'E-Mail konnte nicht gesendet werden. Bitte Verbindung prüfen.'
+          : 'Email could not be sent. Please check your connection.',
+      });
     } finally {
       setSendingTest(false);
     }
@@ -152,15 +172,25 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setDueResult({
-          success: true,
-          message: `${data.sent} E-Mails gesendet, ${data.failed} fehlgeschlagen`,
-        });
+        const message = settings.default_language === 'de'
+          ? `Erinnerungen versendet: ${data.sent} erfolgreich, ${data.failed} fehlgeschlagen`
+          : `Reminders sent: ${data.sent} successful, ${data.failed} failed`;
+        setDueResult({ success: true, message });
       } else {
-        setDueResult({ success: false, message: data.error || 'Fehler beim Senden' });
+        setDueResult({
+          success: false,
+          message: settings.default_language === 'de'
+            ? 'E-Mails konnten nicht gesendet werden. Bitte Verbindung prüfen.'
+            : 'Emails could not be sent. Please check your connection.',
+        });
       }
     } catch (err) {
-      setDueResult({ success: false, message: err.message });
+      setDueResult({
+        success: false,
+        message: settings.default_language === 'de'
+          ? 'E-Mails konnten nicht gesendet werden. Bitte Verbindung prüfen.'
+          : 'Emails could not be sent. Please check your connection.',
+      });
     } finally {
       setSendingDue(false);
     }

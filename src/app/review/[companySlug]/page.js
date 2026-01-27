@@ -226,18 +226,18 @@ function ReviewPageContent() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12">
         <Card className="text-center py-8">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
             Vielen Dank für Ihre Bewertung!
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-dark-300 mb-4">
             Sie haben bereits eine Bewertung für {company.name} abgegeben.
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-dark-400">
             Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
           </p>
         </Card>
@@ -250,18 +250,18 @@ function ReviewPageContent() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12">
         <Card className="text-center py-8">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
             Vielen Dank!
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-dark-300 mb-4">
             Ihre Bewertung für {company.name} wurde erfasst.
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-dark-400">
             Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
           </p>
         </Card>
@@ -276,7 +276,7 @@ function ReviewPageContent() {
       <div className="mb-8">
         <Link
           href="/"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-dark-400 dark:hover:text-dark-200 mb-4"
         >
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -292,15 +292,15 @@ function ReviewPageContent() {
               className="w-16 h-16 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-16 h-16 rounded-lg bg-primary-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary-600">
+            <div className="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+              <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                 {company.name.charAt(0)}
               </span>
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
-            <p className="text-gray-600">Bewertung hinterlassen</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h1>
+            <p className="text-gray-600 dark:text-dark-300">Bewertung hinterlassen</p>
           </div>
         </div>
       </div>
@@ -310,7 +310,7 @@ function ReviewPageContent() {
         {/* Empty state if no descriptors */}
         {categories.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-dark-400">
               Für dieses Unternehmen wurden noch keine Bewertungsoptionen eingerichtet.
             </p>
           </div>
@@ -325,7 +325,7 @@ function ReviewPageContent() {
             />
 
             {/* Divider */}
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-dark-700" />
 
             {/* Review Preview */}
             <ReviewPreview
@@ -337,7 +337,7 @@ function ReviewPageContent() {
             {/* Actions */}
             {selectedDescriptors.size >= APP_CONFIG.minDescriptorsForReview && (
               <>
-                <hr className="border-gray-200" />
+                <hr className="border-gray-200 dark:border-dark-700" />
                 <ReviewActions
                   reviewText={reviewText}
                   googleReviewUrl={company.google_review_link}
