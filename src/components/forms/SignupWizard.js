@@ -204,6 +204,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName, ini
             notification_interval_days: formData.notificationInterval,
             preferred_time_slot: formData.preferredTimeSlot,
             preferred_language: formData.preferredLanguage,
+            is_active: true, // Explicitly set to active
           })
           .select()
           .single();
