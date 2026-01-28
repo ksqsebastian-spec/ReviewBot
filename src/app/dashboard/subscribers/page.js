@@ -51,6 +51,7 @@ export default function SubscribersPage() {
               company_id,
               subscribed_at,
               next_notification_at,
+              review_completed_at,
               companies (
                 id,
                 name,
@@ -299,17 +300,60 @@ export default function SubscribersPage() {
                     )}
                   </div>
 
-                  {/* Subscribed companies */}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {subscriber.subscriber_companies?.map((sc) => (
-                      <span
-                        key={sc.id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300"
-                      >
-                        {sc.companies?.name || 'Unbekannt'}
-                      </span>
-                    ))}
-                  </div>
+                  {/* Company Progress */}
+                  {subscriber.subscriber_companies?.length > 0 && (
+                    <div className="mt-3">
+                      {/* Progress summary */}
+                      <p className="text-sm text-gray-600 dark:text-dark-300 mb-2">
+                        Fortschritt: {subscriber.subscriber_companies.filter(sc => sc.review_completed_at).length}/{subscriber.subscriber_companies.length} Unternehmen bewertet
+                      </p>
+
+                      {/* Company list with checkboxes */}
+                      <div className="space-y-1">
+                        {subscriber.subscriber_companies
+                          .sort((a, b) => (a.review_completed_at ? -1 : 1))
+                          .map((sc) => {
+                            const isCompleted = !!sc.review_completed_at;
+                            const isDue = !isCompleted && sc.next_notification_at && new Date(sc.next_notification_at) <= new Date();
+
+                            return (
+                              <div key={sc.id} className="flex items-center gap-2 text-sm">
+                                {/* Checkbox icon */}
+                                {isCompleted ? (
+                                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                ) : (
+                                  <svg className={`w-4 h-4 ${isDue ? 'text-red-400' : 'text-gray-300 dark:text-dark-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                )}
+
+                                {/* Company name */}
+                                <span className={isCompleted ? 'text-gray-500 dark:text-dark-400 line-through' : 'text-gray-700 dark:text-dark-200'}>
+                                  {sc.companies?.name || 'Unbekannt'}
+                                </span>
+
+                                {/* Status */}
+                                {isCompleted ? (
+                                  <span className="text-xs text-green-600 dark:text-green-400">
+                                    ✓ Bewertet ({formatDate(sc.review_completed_at)})
+                                  </span>
+                                ) : isDue ? (
+                                  <span className="text-xs text-red-600 dark:text-red-400">
+                                    ⚠ Überfällig
+                                  </span>
+                                ) : sc.next_notification_at ? (
+                                  <span className="text-xs text-gray-500 dark:text-dark-400">
+                                    Fällig: {formatDate(sc.next_notification_at)}
+                                  </span>
+                                ) : null}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Meta info */}
                   <div className="mt-3 flex items-center gap-4 text-sm text-gray-500 dark:text-dark-400">
@@ -353,10 +397,10 @@ export default function SubscribersPage() {
 
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Hinweis zur E-Mail-Versand</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">E-Mail-Versand</h3>
         <p className="text-sm text-gray-700 dark:text-dark-300">
-          Die automatische E-Mail-Versand-Funktion wird nach Einrichtung von Resend aktiviert.
-          Bis dahin können Sie die Abonnentenliste exportieren und manuell E-Mails versenden.
+          E-Mails werden automatisch täglich um 9 Uhr versendet. Für sofortigen Versand gehen Sie zu
+          Einstellungen → &quot;Fällige E-Mails senden&quot;.
         </p>
       </Card>
     </div>

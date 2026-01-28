@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS subscribers (
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   preferred_language TEXT DEFAULT 'de',  -- 'de' = German, 'en' = English
-  notification_interval_days INTEGER DEFAULT 30,  -- Base interval
+  notification_interval_days NUMERIC(10,5) DEFAULT 30,  -- Supports decimals for test intervals
   preferred_time_slot TEXT DEFAULT 'morning',  -- 'morning', 'afternoon', 'evening'
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   is_active BOOLEAN DEFAULT TRUE  -- Global unsubscribe flag
