@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import Sidebar from '@/components/layout/Sidebar';
 import { CompanyProvider } from '@/contexts/CompanyContext';
 import { APP_CONFIG } from '@/lib/constants';
 
@@ -68,10 +69,16 @@ export default function RootLayout({ children }) {
           {/* Header appears on all pages */}
           <Header />
 
-          {/* Main content area - grows to fill available space */}
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+          {/* Main content with sidebar */}
+          <div className="flex flex-1">
+            {/* Sidebar navigation - visible on all pages */}
+            <Sidebar />
+
+            {/* Main content area - grows to fill available space */}
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+          </div>
 
           {/* Footer appears on all pages */}
           <Footer />

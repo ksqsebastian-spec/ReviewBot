@@ -1,54 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import Sidebar from '@/components/layout/Sidebar';
 import QRCodePanel from '@/components/dashboard/QRCodePanel';
-import MobileNav from '@/components/layout/MobileNav';
-import HeaderCompanySelector from '@/components/layout/HeaderCompanySelector';
 
 /*
   Dashboard Layout
 
   Wraps all /dashboard/* pages with:
-  - Sidebar navigation (left, hidden on mobile)
-  - Mobile navigation (hamburger menu on mobile)
   - QR Code panel (right, collapsible)
+
+  Note: Sidebar is now in the root layout (visible on all pages).
 
   NEXT.JS LAYOUTS:
   - layout.js in a folder wraps all pages in that folder
   - They can be nested (root layout → dashboard layout → page)
-  - Great for shared UI like sidebars that only appear in certain sections
 */
 
 export default function DashboardLayout({ children }) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
   return (
-    <div className="flex">
-      {/* Desktop Sidebar navigation */}
-      <Sidebar />
-
-      {/* Mobile Navigation */}
-      <MobileNav isOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
-
+    <div className="flex flex-1">
       {/* Main content area */}
       <div className="flex-1 min-h-[calc(100vh-4rem)] bg-gray-50 dark:bg-dark-950">
-        {/* Mobile header with hamburger */}
-        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900">
-          <button
-            onClick={() => setMobileNavOpen(true)}
-            className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100
-                       dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-800"
-            aria-label="Menü öffnen"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <HeaderCompanySelector />
-          <div className="w-10" /> {/* Spacer for centering */}
-        </div>
-
         {/* Page content */}
         <div className="p-4 md:p-8">
           {children}
