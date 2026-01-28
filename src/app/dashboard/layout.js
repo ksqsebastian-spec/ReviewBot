@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import QRCodePanel from '@/components/dashboard/QRCodePanel';
 import MobileNav from '@/components/layout/MobileNav';
+import HeaderCompanySelector from '@/components/layout/HeaderCompanySelector';
 
 /*
   Dashboard Layout
@@ -44,7 +45,7 @@ export default function DashboardLayout({ children }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-gray-700 dark:text-dark-200">Dashboard</span>
+          <HeaderCompanySelector />
           <div className="w-10" /> {/* Spacer for centering */}
         </div>
 

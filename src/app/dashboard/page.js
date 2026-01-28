@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
-import CompanySelector from '@/components/dashboard/CompanySelector';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   Dashboard Overview Page
@@ -20,8 +20,7 @@ import CompanySelector from '@/components/dashboard/CompanySelector';
 */
 
 export default function DashboardPage() {
-  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
-  const [selectedCompanyName, setSelectedCompanyName] = useState(null);
+  const { selectedCompanyId, selectedCompany } = useCompanyContext();
   const [stats, setStats] = useState({
     companies: 0,
     subscribers: 0,
@@ -40,8 +39,7 @@ export default function DashboardPage() {
       try {
         if (selectedCompanyId) {
           // Fetch stats for specific company
-          const [companyRes, subscribersRes, reviewsRes] = await Promise.all([
-            supabase.from('companies').select('name').eq('id', selectedCompanyId).single(),
+          const [subscribersRes, reviewsRes] = await Promise.all([
             // Check new subscribers table first, fall back to old email_subscribers
             supabase
               .from('subscriber_companies')
@@ -64,7 +62,6 @@ export default function DashboardPage() {
             subscriberCount = count || 0;
           }
 
-          setSelectedCompanyName(companyRes.data?.name || null);
           setStats({
             companies: 1,
             subscribers: subscriberCount || 0,
@@ -89,7 +86,6 @@ export default function DashboardPage() {
             subscriberCount = count || 0;
           }
 
-          setSelectedCompanyName(null);
           setStats({
             companies: companiesRes.count || 0,
             subscribers: subscriberCount || 0,
@@ -157,22 +153,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header with Company Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {selectedCompanyName ? selectedCompanyName : 'Dashboard'}
-          </h1>
-          <p className="text-gray-600 dark:text-dark-400 mt-1">
-            {selectedCompanyId
-              ? 'Statistiken für ausgewähltes Unternehmen'
-              : 'Übersicht Ihrer Review-Plattform'}
-          </p>
-        </div>
-        <CompanySelector
-          selectedCompanyId={selectedCompanyId}
-          onCompanyChange={setSelectedCompanyId}
-        />
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {selectedCompany ? selectedCompany.name : 'Dashboard'}
+        </h1>
+        <p className="text-gray-600 dark:text-dark-400 mt-1">
+          {selectedCompanyId
+            ? 'Statistiken für ausgewähltes Unternehmen'
+            : 'Übersicht Ihrer Review-Plattform'}
+        </p>
       </div>
 
       {/* Stats Grid */}

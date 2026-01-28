@@ -7,6 +7,7 @@ import { NOTIFICATION_INTERVALS } from '@/lib/constants';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   Subscribers Management Page
@@ -24,6 +25,7 @@ import Modal from '@/components/ui/Modal';
 */
 
 export default function SubscribersPage() {
+  const { selectedCompanyId } = useCompanyContext();
   const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubscriber, setSelectedSubscriber] = useState(null);
@@ -162,6 +164,13 @@ export default function SubscribersPage() {
     URL.revokeObjectURL(url);
   };
 
+  // Filter by selected company (client-side)
+  const displayedSubscribers = selectedCompanyId
+    ? subscribers.filter((s) =>
+        s.subscriber_companies?.some((sc) => sc.company_id === selectedCompanyId)
+      )
+    : subscribers;
+
   // Get interval label
   const getIntervalLabel = (days) => {
     const interval = NOTIFICATION_INTERVALS.find((i) => i.value === days);
@@ -175,7 +184,7 @@ export default function SubscribersPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Abonnenten</h1>
           <p className="text-gray-600 dark:text-dark-400 mt-1">
-            {subscribers.filter((s) => s.is_active).length} aktive Abonnenten
+            {displayedSubscribers.filter((s) => s.is_active).length} aktive Abonnenten
           </p>
         </div>
         <Button onClick={handleExport} disabled={subscribers.length === 0}>
@@ -219,9 +228,9 @@ export default function SubscribersPage() {
       )}
 
       {/* Subscribers List */}
-      {!loading && subscribers.length > 0 && (
+      {!loading && displayedSubscribers.length > 0 && (
         <div className="space-y-4">
-          {subscribers.map((subscriber) => (
+          {displayedSubscribers.map((subscriber) => (
             <Card key={subscriber.id} className={`${!subscriber.is_active ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
                 {/* Subscriber Info */}

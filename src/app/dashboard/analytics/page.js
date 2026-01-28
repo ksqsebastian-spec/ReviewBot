@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   Analytics Dashboard
@@ -18,6 +19,7 @@ import Card from '@/components/ui/Card';
 */
 
 export default function AnalyticsPage() {
+  const { selectedCompanyId } = useCompanyContext();
   const [stats, setStats] = useState({
     totalReviews: 0,
     copiedReviews: 0,
@@ -36,22 +38,26 @@ export default function AnalyticsPage() {
       }
 
       try {
-        // Total reviews and copied count
-        const { data: reviewData } = await supabase
+        // Total reviews and copied count (filtered by company if selected)
+        let reviewQuery = supabase
           .from('generated_reviews')
           .select('id, copied, company_id, created_at');
+        if (selectedCompanyId) {
+          reviewQuery = reviewQuery.eq('company_id', selectedCompanyId);
+        }
+        const { data: reviewData } = await reviewQuery;
 
         const totalReviews = reviewData?.length || 0;
         const copiedReviews = reviewData?.filter((r) => r.copied).length || 0;
 
         // Reviews by company
-        const { data: companyReviews } = await supabase
+        let companyQuery = supabase
           .from('companies')
-          .select(`
-            id,
-            name,
-            generated_reviews (id)
-          `);
+          .select('id, name, generated_reviews (id)');
+        if (selectedCompanyId) {
+          companyQuery = companyQuery.eq('id', selectedCompanyId);
+        }
+        const { data: companyReviews } = await companyQuery;
 
         const reviewsByCompany = (companyReviews || [])
           .map((c) => ({
@@ -61,22 +67,24 @@ export default function AnalyticsPage() {
           .sort((a, b) => b.count - a.count);
 
         // Total subscribers
-        const { count: subscriberCount } = await supabase
+        let subscriberQuery = supabase
           .from('email_subscribers')
           .select('id', { count: 'exact', head: true })
           .eq('is_active', true);
+        // Note: email_subscribers doesn't have company_id filtering here
+
+        const { count: subscriberCount } = await subscriberQuery;
 
         // Recent reviews (last 10)
-        const { data: recent } = await supabase
+        let recentQuery = supabase
           .from('generated_reviews')
-          .select(`
-            id,
-            review_text,
-            created_at,
-            companies (name)
-          `)
+          .select('id, review_text, created_at, companies (name)')
           .order('created_at', { ascending: false })
           .limit(10);
+        if (selectedCompanyId) {
+          recentQuery = recentQuery.eq('company_id', selectedCompanyId);
+        }
+        const { data: recent } = await recentQuery;
 
         setStats({
           totalReviews,
@@ -93,7 +101,7 @@ export default function AnalyticsPage() {
     }
 
     fetchAnalytics();
-  }, []);
+  }, [selectedCompanyId]);
 
   // Calculate conversion rate
   const conversionRate = stats.totalReviews > 0

@@ -1,55 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import QRCode from '@/components/ui/QRCode';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   Anmelde-Links Seite
 
-  Übersicht aller Unternehmen mit ihren Anmelde-URLs.
-  Ermöglicht das schnelle Kopieren und Teilen von Anmeldelinks.
+  Übersicht der Unternehmen mit ihren Anmelde-URLs.
+  Uses global CompanyContext — filters by selected company or shows all.
 
   FUNKTIONEN:
-  - Liste aller Unternehmen mit Anmelde-URLs
+  - Liste der Unternehmen mit Anmelde-URLs
   - Kopierfunktion für jeden Link
   - QR-Code Miniaturansicht
   - Direktlink zur öffentlichen Anmeldeseite
 */
 
 export default function SignupLinksPage() {
-  const [companies, setCompanies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { companies: allCompanies, selectedCompanyId, loading } = useCompanyContext();
   const [copiedId, setCopiedId] = useState(null);
 
-  // Unternehmen laden
-  useEffect(() => {
-    async function fetchCompanies() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('companies')
-          .select('id, name, slug')
-          .order('name');
-
-        if (error) throw error;
-        setCompanies(data || []);
-      } catch (err) {
-        // Fehler wird durch leeren Zustand angezeigt
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCompanies();
-  }, []);
+  // Filter by selected company, or show all
+  const companies = selectedCompanyId
+    ? allCompanies.filter((c) => c.id === selectedCompanyId)
+    : allCompanies;
 
   // URL generieren
   const getSignupUrl = (slug) => {

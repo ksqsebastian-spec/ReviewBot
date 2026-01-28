@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { CompanyProvider } from '@/contexts/CompanyContext';
 import { APP_CONFIG } from '@/lib/constants';
 
 /*
@@ -55,24 +56,26 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen flex flex-col">
-        {/* Skip link for keyboard users - invisible until focused */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-        >
-          Zum Hauptinhalt springen
-        </a>
+        <CompanyProvider>
+          {/* Skip link for keyboard users - invisible until focused */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            Zum Hauptinhalt springen
+          </a>
 
-        {/* Header appears on all pages */}
-        <Header />
+          {/* Header appears on all pages */}
+          <Header />
 
-        {/* Main content area - grows to fill available space */}
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
+          {/* Main content area - grows to fill available space */}
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
 
-        {/* Footer appears on all pages */}
-        <Footer />
+          {/* Footer appears on all pages */}
+          <Footer />
+        </CompanyProvider>
       </body>
     </html>
   );
