@@ -96,7 +96,7 @@ export default function Sidebar() {
   const isActive = (href) => pathname === href;
 
   return (
-    <aside className="w-64 bg-white dark:bg-dark-900 border-r border-gray-200 dark:border-dark-700 min-h-[calc(100vh-4rem)] hidden md:block">
+    <aside className="w-64 bg-white dark:bg-dark-900 border-r border-gray-200 dark:border-dark-700 min-h-[calc(100vh-4rem)]">
       <nav className="p-4 space-y-6" aria-label="Dashboard-Navigation">
         {sections.map((section) => (
           <div key={section.title}>
