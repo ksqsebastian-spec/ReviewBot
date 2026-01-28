@@ -21,6 +21,7 @@ export default function Header() {
   // Navigation links configuration
   const navLinks = [
     { href: '/', label: 'Home' },
+    { href: '/companies', label: 'Unternehmen' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/faq', label: 'FAQ' },
   ];
