@@ -32,14 +32,14 @@ const WIZARD_STEPS = [
   { num: 4, label: 'Fertig' },
 ];
 
-export default function SignupWizard({ initialCompanyId, initialCompanyName }) {
+export default function SignupWizard({ initialCompanyId, initialCompanyName, initialEmail = '' }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Form data
+  // Form data — pre-fill email if provided (e.g., from home page newsletter form)
   const [formData, setFormData] = useState({
-    email: '',
+    email: initialEmail,
     name: '',
     selectedCompanies: initialCompanyId ? [initialCompanyId] : [],
     completedCompanies: [],

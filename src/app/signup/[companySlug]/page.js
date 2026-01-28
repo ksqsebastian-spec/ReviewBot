@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
@@ -12,21 +12,24 @@ import SignupWizard from '@/components/forms/SignupWizard';
   Email Signup Page
 
   Public page where customers can subscribe to review reminders.
-  Accessed via QR code or direct link.
+  Accessed via QR code, direct link, or home page newsletter form.
 
   URL: /signup/[companySlug]
+  Optional: ?email=user@example.com (pre-fills email from home page)
 
   FLOW:
-  1. Customer scans QR code at business location
+  1. Customer scans QR code or enters email on home page
   2. Multi-step wizard guides them through signup
   3. Can subscribe to multiple companies
   4. Set notification preferences (interval, time, language)
   5. Later receives personalized email reminders
 */
 
-export default function SignupPage() {
+function SignupPageContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const companySlug = params.companySlug;
+  const initialEmail = searchParams.get('email') || '';
 
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +119,7 @@ export default function SignupPage() {
         <SignupWizard
           initialCompanyId={company.id}
           initialCompanyName={company.name}
+          initialEmail={initialEmail}
         />
       </Card>
 
@@ -129,5 +133,20 @@ export default function SignupPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+// Wrapper with Suspense for useSearchParams
+export default function SignupPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200 border-t-primary-600"></div>
+        </div>
+      }
+    >
+      <SignupPageContent />
+    </Suspense>
   );
 }
