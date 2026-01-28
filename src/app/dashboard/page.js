@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
@@ -28,16 +28,17 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Fetch stats based on selected company
-  useEffect(() => {
-    async function fetchStats() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
+  // Fetch stats function (memoized for reuse)
+  const fetchStats = useCallback(async (showLoading = true) => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
 
-      try {
-        if (selectedCompanyId) {
+    if (showLoading) setLoading(true);
+
+    try {
+      if (selectedCompanyId) {
           // Fetch stats for specific company
           const [subscribersRes, reviewsRes] = await Promise.all([
             // Check new subscribers table first, fall back to old email_subscribers
@@ -93,15 +94,28 @@ export default function DashboardPage() {
           });
         }
       } catch (err) {
-        // Error handled by state
-      } finally {
-        setLoading(false);
-      }
+      // Error handled by state
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(true);
-    fetchStats();
   }, [selectedCompanyId]);
+
+  // Fetch on mount and when company changes
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  // Auto-refresh when tab becomes visible (handles stale data)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchStats(false); // Don't show loading spinner for background refresh
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchStats]);
 
   const statCards = [
     {

@@ -57,6 +57,11 @@ function getSupabaseAdmin() {
 async function sendEmail({ to, subject, html, from }) {
   const transporter = getEmailTransporter();
 
+  // Ensure GMAIL_USER is defined to prevent "undefined" in from field
+  if (!GMAIL_USER) {
+    throw new Error('GMAIL_USER environment variable not configured');
+  }
+
   const mailOptions = {
     from: from || `Review Bot <${GMAIL_USER}>`,
     to: to,
@@ -203,7 +208,7 @@ export async function POST(request) {
           id,
           subscriber_id,
           company_id,
-          subscribers (id, email, name, preferred_language, is_active),
+          subscribers (id, email, name, preferred_language, is_active, notification_interval_days),
           companies (id, name, slug)
         `)
         .lte('next_notification_at', now)
@@ -244,12 +249,26 @@ export async function POST(request) {
             email_subject: `Bewertungserinnerung: ${sub.companies.name}`,
           });
 
-          // Update last_notified_at (don't schedule next - they only need to review once)
+          // Calculate next notification time based on subscriber's interval
+          // This ensures recurring reminders until the review is completed
+          const intervalDays = sub.subscribers.notification_interval_days || 30;
+          let nextNotificationAt = null;
+
+          if (intervalDays > 0) {
+            // Add variance for natural timing (±20% for regular intervals)
+            const variance = intervalDays >= 1 ? Math.floor(intervalDays * 0.2) : 0;
+            const randomDays = intervalDays + (Math.random() * variance * 2 - variance);
+            const nextDate = new Date();
+            nextDate.setTime(nextDate.getTime() + randomDays * 24 * 60 * 60 * 1000);
+            nextNotificationAt = nextDate.toISOString();
+          }
+
+          // Update last_notified_at and schedule next notification
           await supabase
             .from('subscriber_companies')
             .update({
               last_notified_at: now,
-              next_notification_at: null, // Don't schedule another - wait for review completion
+              next_notification_at: nextNotificationAt,
             })
             .eq('id', sub.id);
 

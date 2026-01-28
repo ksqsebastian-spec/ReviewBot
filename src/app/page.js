@@ -124,20 +124,20 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8">
       <div className="w-full max-w-md space-y-8">
 
-        {/* Company Selector */}
-        {companies.length > 1 && (
-          <div className="text-center">
+        {/* Company Name Display - prominent and set in stone */}
+        <div className="text-center">
+          {companies.length > 1 ? (
             <select
               value={selectedCompany?.id || ''}
               onChange={(e) => {
                 const company = companies.find((c) => c.id === e.target.value);
                 setSelectedCompany(company);
               }}
-              className="px-4 py-2.5 border border-gray-200 dark:border-dark-600 rounded-xl
-                         bg-white dark:bg-dark-800 text-gray-900 dark:text-dark-100
-                         text-center font-medium
-                         focus:outline-none focus:ring-2 focus:ring-primary-500
-                         appearance-none cursor-pointer"
+              className="px-6 py-3 border-2 border-primary-200 dark:border-primary-800 rounded-xl
+                         bg-white dark:bg-dark-800 text-gray-900 dark:text-white
+                         text-2xl font-bold text-center
+                         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                         appearance-none cursor-pointer shadow-sm"
             >
               {companies.map((company) => (
                 <option key={company.id} value={company.id}>
@@ -145,15 +145,14 @@ export default function HomePage() {
                 </option>
               ))}
             </select>
-          </div>
-        )}
-
-        {/* Single company name display */}
-        {companies.length === 1 && (
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-center">
-            {selectedCompany?.name}
-          </h2>
-        )}
+          ) : (
+            <div className="inline-block px-8 py-4 bg-white dark:bg-dark-800 rounded-xl shadow-md border-2 border-primary-200 dark:border-primary-800">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                {selectedCompany?.name}
+              </h1>
+            </div>
+          )}
+        </div>
 
         {/* QR Code — large, centered, always on white for scannability */}
         <div className="flex flex-col items-center">

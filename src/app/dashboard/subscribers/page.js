@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 import { NOTIFICATION_INTERVALS } from '@/lib/constants';
@@ -32,14 +32,15 @@ export default function SubscribersPage() {
   const [showEditModal, setShowEditModal] = useState(false);
 
   // Fetch subscribers with their company subscriptions
-  useEffect(() => {
-    async function fetchSubscribers() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
+  const fetchSubscribers = useCallback(async (showLoading = true) => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
 
-      try {
+    if (showLoading) setLoading(true);
+
+    try {
         // Fetch from new subscribers table
         const { data: subscriberData, error: subError } = await supabase
           .from('subscribers')
@@ -99,14 +100,28 @@ export default function SubscribersPage() {
           setSubscribers(subscriberData || []);
         }
       } catch (err) {
-        // Error handled by state
-      } finally {
-        setLoading(false);
-      }
+      // Error handled by state
+    } finally {
+      setLoading(false);
     }
-
-    fetchSubscribers();
   }, []);
+
+  // Fetch on mount
+  useEffect(() => {
+    fetchSubscribers();
+  }, [fetchSubscribers]);
+
+  // Auto-refresh when tab becomes visible (handles stale data)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSubscribers(false); // Don't show loading spinner for background refresh
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchSubscribers]);
 
   // Deactivate subscriber (global unsubscribe)
   const handleDeactivate = async (subscriberId) => {

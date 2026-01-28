@@ -12,42 +12,42 @@
 // These are used when setting up a new company
 export const DEFAULT_DESCRIPTOR_CATEGORIES = [
   {
-    name: 'Service Quality',
+    name: 'Servicequalität',
     descriptors: [
-      'excellent service from start to finish',
-      'quick and efficient process',
-      'thorough and attentive to detail',
-      'went above and beyond expectations',
-      'made the entire experience seamless',
+      'exzellenter Service von Anfang bis Ende',
+      'schneller und effizienter Ablauf',
+      'gründlich und detailorientiert',
+      'hat meine Erwartungen übertroffen',
+      'alles verlief reibungslos',
     ],
   },
   {
-    name: 'Staff & Team',
+    name: 'Personal & Team',
     descriptors: [
-      'friendly and professional team',
-      'knowledgeable and helpful staff',
-      'patient and understanding',
-      'great communication throughout',
-      'made me feel welcome and valued',
+      'freundliches und professionelles Team',
+      'kompetente und hilfsbereite Mitarbeiter',
+      'geduldig und verständnisvoll',
+      'hervorragende Kommunikation',
+      'ich fühlte mich willkommen und geschätzt',
     ],
   },
   {
-    name: 'Value & Pricing',
+    name: 'Preis & Leistung',
     descriptors: [
-      'fair and transparent pricing',
-      'great value for the quality provided',
-      'no hidden fees or surprises',
-      'competitive rates',
+      'faire und transparente Preise',
+      'tolles Preis-Leistungs-Verhältnis',
+      'keine versteckten Kosten',
+      'wettbewerbsfähige Preise',
     ],
   },
   {
-    name: 'Overall Experience',
+    name: 'Gesamterlebnis',
     descriptors: [
-      'highly recommend to others',
-      'will definitely return',
-      'exceeded my expectations',
-      'a pleasure to work with',
-      'trustworthy and reliable',
+      'kann ich sehr empfehlen',
+      'werde definitiv wiederkommen',
+      'hat meine Erwartungen übertroffen',
+      'es war ein Vergnügen',
+      'vertrauenswürdig und zuverlässig',
     ],
   },
 ];
@@ -55,10 +55,10 @@ export const DEFAULT_DESCRIPTOR_CATEGORIES = [
 // Review templates that combine selected descriptors
 // The {descriptors} placeholder gets replaced with user selections
 export const REVIEW_TEMPLATES = [
-  'I had a wonderful experience. {descriptors}. I would not hesitate to recommend them.',
-  'Truly impressed with my visit. {descriptors}. Looking forward to my next appointment.',
-  '{descriptors}. Overall, a fantastic experience that I would recommend to anyone.',
-  'From my experience, I can say that {descriptors}. Five stars well deserved.',
+  'Ich hatte eine wunderbare Erfahrung. {descriptors}. Ich würde sie ohne Zögern weiterempfehlen.',
+  'Wirklich beeindruckt von meinem Besuch. {descriptors}. Ich freue mich auf meinen nächsten Termin.',
+  '{descriptors}. Insgesamt eine fantastische Erfahrung, die ich jedem empfehlen würde.',
+  'Aus meiner Erfahrung kann ich sagen, dass {descriptors}. Fünf Sterne wohlverdient.',
 ];
 
 // App-wide settings
@@ -70,14 +70,14 @@ export const APP_CONFIG = {
 
 // Status messages for user feedback
 export const MESSAGES = {
-  reviewCopied: 'Review copied to clipboard!',
-  selectMore: 'Please select at least 2 descriptions to generate a review.',
-  selectLess: 'Please select no more than 6 descriptions for a natural review.',
-  linkOpening: 'Opening Google Reviews...',
+  reviewCopied: 'Bewertung in die Zwischenablage kopiert!',
+  selectMore: 'Bitte wählen Sie mindestens 2 Beschreibungen aus, um eine Bewertung zu erstellen.',
+  selectLess: 'Bitte wählen Sie maximal 6 Beschreibungen für eine natürliche Bewertung.',
+  linkOpening: 'Google Bewertungen werden geöffnet...',
   error: {
-    loadCompanies: 'Unable to load companies. Please try again.',
-    loadDescriptors: 'Unable to load options. Please try again.',
-    generic: 'Something went wrong. Please try again.',
+    loadCompanies: 'Unternehmen konnten nicht geladen werden. Bitte erneut versuchen.',
+    loadDescriptors: 'Optionen konnten nicht geladen werden. Bitte erneut versuchen.',
+    generic: 'Etwas ist schief gelaufen. Bitte erneut versuchen.',
   },
 };
 

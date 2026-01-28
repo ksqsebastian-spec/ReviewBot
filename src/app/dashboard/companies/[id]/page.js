@@ -134,7 +134,7 @@ export default function CompanyEditPage() {
   }
 
   async function handleDeleteCategory(categoryId) {
-    if (!confirm('Delete this category and all its descriptors?')) return;
+    if (!confirm('Diese Kategorie und alle zugehörigen Beschreibungen löschen?')) return;
 
     try {
       const { error } = await supabase
@@ -213,9 +213,9 @@ export default function CompanyEditPage() {
   if (!company) {
     return (
       <Card className="text-center">
-        <p className="text-gray-600 dark:text-dark-400 mb-4">Company not found</p>
+        <p className="text-gray-600 dark:text-dark-400 mb-4">Unternehmen nicht gefunden</p>
         <Link href="/dashboard/companies">
-          <Button>Back to Companies</Button>
+          <Button>Zurück zu Unternehmen</Button>
         </Link>
       </Card>
     );
@@ -237,11 +237,11 @@ export default function CompanyEditPage() {
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Companies
+            Zurück zu Unternehmen
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h1>
         </div>
-        <Button onClick={() => setShowEditModal(true)}>Edit Company Info</Button>
+        <Button onClick={() => setShowEditModal(true)}>Unternehmen bearbeiten</Button>
       </div>
 
       {/* Company Info Card */}
@@ -262,9 +262,9 @@ export default function CompanyEditPage() {
               </div>
             )}
             <div>
-              <p className="text-gray-600 dark:text-dark-300">{company.description || 'No description'}</p>
+              <p className="text-gray-600 dark:text-dark-300">{company.description || 'Keine Beschreibung'}</p>
               <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
-                Review link: <span className="font-mono">/review/{company.slug}</span>
+                Bewertungslink: <span className="font-mono">/review/{company.slug}</span>
               </p>
             </div>
           </div>
@@ -272,17 +272,17 @@ export default function CompanyEditPage() {
           {/* QR Code */}
           <div className="text-center">
             <QRCode url={reviewUrl} size={100} />
-            <p className="text-xs text-gray-500 dark:text-dark-400 mt-2">Scan for review page</p>
+            <p className="text-xs text-gray-500 dark:text-dark-400 mt-2">Scannen für Bewertungsseite</p>
           </div>
         </div>
       </Card>
 
       {/* Descriptors Section */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Review Descriptors</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bewertungsbeschreibungen</h2>
         <p className="text-gray-600 dark:text-dark-400 mb-6">
-          These are the phrases customers can select when writing reviews.
-          Organize them into categories for better UX.
+          Diese Phrasen können Kunden beim Schreiben von Bewertungen auswählen.
+          Organisieren Sie sie in Kategorien für eine bessere Nutzererfahrung.
         </p>
 
         {/* Category List */}
@@ -309,7 +309,7 @@ export default function CompanyEditPage() {
                       variant="secondary"
                       onClick={() => setEditingCategory(null)}
                     >
-                      Cancel
+                      Abbrechen
                     </Button>
                   </div>
                 ) : (
@@ -319,7 +319,7 @@ export default function CompanyEditPage() {
                   <button
                     onClick={() => setEditingCategory(category.id)}
                     className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded"
-                    title="Rename category"
+                    title="Kategorie umbenennen"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -328,7 +328,7 @@ export default function CompanyEditPage() {
                   <button
                     onClick={() => handleDeleteCategory(category.id)}
                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 rounded"
-                    title="Delete category"
+                    title="Kategorie löschen"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -356,14 +356,14 @@ export default function CompanyEditPage() {
                   </div>
                 ))}
                 {category.descriptors.length === 0 && (
-                  <p className="text-sm text-gray-400 dark:text-dark-500 italic">No descriptors yet</p>
+                  <p className="text-sm text-gray-400 dark:text-dark-500 italic">Noch keine Beschreibungen</p>
                 )}
               </div>
 
               {/* Add Descriptor Input */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Add a new descriptor..."
+                  placeholder="Neue Beschreibung hinzufügen..."
                   value={newDescriptor.categoryId === category.id ? newDescriptor.text : ''}
                   onChange={(e) => setNewDescriptor({ categoryId: category.id, text: e.target.value })}
                   onKeyDown={(e) => {
@@ -376,7 +376,7 @@ export default function CompanyEditPage() {
                   onClick={() => handleAddDescriptor(category.id)}
                   disabled={!newDescriptor.text.trim() || newDescriptor.categoryId !== category.id}
                 >
-                  Add
+                  Hinzufügen
                 </Button>
               </div>
             </Card>
@@ -386,7 +386,7 @@ export default function CompanyEditPage() {
           <Card className="border-dashed">
             <div className="flex gap-2">
               <Input
-                placeholder="New category name..."
+                placeholder="Neuer Kategoriename..."
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 onKeyDown={(e) => {
@@ -396,7 +396,7 @@ export default function CompanyEditPage() {
                 }}
               />
               <Button onClick={handleAddCategory} disabled={!newCategoryName.trim()}>
-                Add Category
+                Kategorie hinzufügen
               </Button>
             </div>
           </Card>
@@ -404,7 +404,7 @@ export default function CompanyEditPage() {
       </div>
 
       {/* Edit Company Modal */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Company">
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Unternehmen bearbeiten">
         <CompanyForm
           company={company}
           onSuccess={handleCompanyUpdate}
