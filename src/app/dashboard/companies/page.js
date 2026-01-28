@@ -2,12 +2,13 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import CompanyForm from '@/components/forms/CompanyForm';
+import CompanyCard from '@/components/dashboard/CompanyCard';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   Companies Management Page
@@ -25,6 +26,7 @@ import CompanyForm from '@/components/forms/CompanyForm';
 function CompaniesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refetchCompanies } = useCompanyContext();
   const showNewModal = searchParams.get('action') === 'new';
 
   const [companies, setCompanies] = useState([]);
@@ -68,6 +70,7 @@ function CompaniesContent() {
   function handleCreateSuccess(newCompany) {
     setCompanies((prev) => [newCompany, ...prev]);
     setShowModal(false);
+    refetchCompanies(); // Sync the global company selector
     router.push('/dashboard/companies');
   }
 
@@ -82,6 +85,7 @@ function CompaniesContent() {
       if (error) throw error;
       setCompanies((prev) => prev.filter((c) => c.id !== companyId));
       setDeleteConfirm(null);
+      refetchCompanies(); // Sync the global company selector
     } catch (err) {
       // Silently fail - user can retry
     }
@@ -98,16 +102,16 @@ function CompaniesContent() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Companies</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Unternehmen</h1>
           <p className="text-gray-600 dark:text-dark-400 mt-1">
-            Manage your businesses and their review settings
+            Verwalten Sie Ihre Unternehmen und deren Bewertungseinstellungen
           </p>
         </div>
         <Button onClick={() => setShowModal(true)}>
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add Company
+          Hinzufügen
         </Button>
       </div>
 
@@ -135,83 +139,30 @@ function CompaniesContent() {
             />
           </svg>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No companies yet
+            Noch keine Unternehmen
           </h3>
           <p className="text-gray-500 dark:text-dark-400 mb-4">
-            Get started by adding your first company.
+            Beginnen Sie, indem Sie Ihr erstes Unternehmen hinzufügen.
           </p>
-          <Button onClick={() => setShowModal(true)}>Add Your First Company</Button>
+          <Button onClick={() => setShowModal(true)}>Erstes Unternehmen hinzufügen</Button>
         </Card>
       )}
 
-      {/* Companies List */}
+      {/* Companies Grid — 2-column layout with prominent cards */}
       {!loading && companies.length > 0 && (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {companies.map((company) => (
-            <Card key={company.id} className="hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  {/* Logo or initial */}
-                  {company.logo_url ? (
-                    <img
-                      src={company.logo_url}
-                      alt={`${company.name} logo`}
-                      className="w-12 h-12 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
-                      <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                        {company.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Company info */}
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{company.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-dark-400">/review/{company.slug}</p>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/review/${company.slug}`}
-                    target="_blank"
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded-lg"
-                    title="View review page"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </Link>
-                  <Link
-                    href={`/dashboard/companies/${company.id}`}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-dark-400 dark:hover:text-dark-200 dark:hover:bg-dark-700 rounded-lg"
-                    title="Edit company"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </Link>
-                  <button
-                    onClick={() => setDeleteConfirm(company)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 rounded-lg"
-                    title="Delete company"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </Card>
+            <CompanyCard
+              key={company.id}
+              company={company}
+              onDelete={setDeleteConfirm}
+            />
           ))}
         </div>
       )}
 
       {/* Add Company Modal */}
-      <Modal isOpen={showModal} onClose={closeModal} title="Add New Company">
+      <Modal isOpen={showModal} onClose={closeModal} title="Neues Unternehmen">
         <CompanyForm onSuccess={handleCreateSuccess} onCancel={closeModal} />
       </Modal>
 
@@ -219,20 +170,20 @@ function CompaniesContent() {
       <Modal
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
-        title="Delete Company"
+        title="Unternehmen löschen"
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-dark-300">
-            Are you sure you want to delete <strong className="text-gray-900 dark:text-white">{deleteConfirm?.name}</strong>?
-            This will also delete all associated descriptors and data.
+            Möchten Sie <strong className="text-gray-900 dark:text-white">{deleteConfirm?.name}</strong> wirklich löschen?
+            Alle zugehörigen Beschreibungen und Daten werden ebenfalls gelöscht.
           </p>
-          <p className="text-sm text-red-600 dark:text-red-400">This action cannot be undone.</p>
+          <p className="text-sm text-red-600 dark:text-red-400">Diese Aktion kann nicht rückgängig gemacht werden.</p>
           <div className="flex gap-3 pt-2">
             <Button variant="danger" onClick={() => handleDelete(deleteConfirm?.id)}>
-              Delete Company
+              Löschen
             </Button>
             <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
-              Cancel
+              Abbrechen
             </Button>
           </div>
         </div>

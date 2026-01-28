@@ -1,60 +1,31 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { useState, useRef } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import QRCode from '@/components/ui/QRCode';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 /*
   QR-Codes Seite
 
   Dedizierte Seite zum Generieren und Drucken von QR-Codes.
-  Ermöglicht das Erstellen von QR-Codes für Bewertungs- und Anmeldeseiten.
+  Uses global CompanyContext for company selection (header dropdown).
 
   FUNKTIONEN:
-  - Unternehmensauswahl
   - Umschalten zwischen Bewertungs- und Anmelde-QR
   - Druckfunktion mit Firmenname
   - Link kopieren
 */
 
 export default function QRCodesPage() {
-  const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [qrType, setQrType] = useState('review'); // 'review' or 'signup'
-  const [loading, setLoading] = useState(true);
+  const { companies, selectedCompany: contextCompany, loading } = useCompanyContext();
+  const [qrType, setQrType] = useState('review');
   const [copied, setCopied] = useState(false);
   const printRef = useRef(null);
 
-  // Unternehmen laden
-  useEffect(() => {
-    async function fetchCompanies() {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('companies')
-          .select('id, name, slug')
-          .order('name');
-
-        if (error) throw error;
-        setCompanies(data || []);
-        if (data && data.length > 0) {
-          setSelectedCompany(data[0]);
-        }
-      } catch (err) {
-        // Fehler wird durch leeren Zustand angezeigt
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCompanies();
-  }, []);
+  // QR codes are per-company — if "Alle" selected, use first company
+  const selectedCompany = contextCompany || companies[0] || null;
 
   // URL basierend auf Typ generieren
   const getQRUrl = () => {
@@ -186,29 +157,6 @@ export default function QRCodesPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Einstellungen
             </h2>
-
-            {/* Unternehmensauswahl */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-                Unternehmen auswählen
-              </label>
-              <select
-                value={selectedCompany?.id || ''}
-                onChange={(e) => {
-                  const company = companies.find((c) => c.id === e.target.value);
-                  setSelectedCompany(company);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg
-                           bg-white dark:bg-dark-800 text-gray-900 dark:text-dark-100
-                           focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </div>
 
             {/* QR-Typ Auswahl */}
             <div className="mb-6">
