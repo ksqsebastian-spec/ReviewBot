@@ -208,7 +208,7 @@ export async function POST(request) {
           id,
           subscriber_id,
           company_id,
-          subscribers (id, email, name, preferred_language, is_active, notification_interval_days),
+          subscribers (id, email, name, preferred_language, is_active, notification_interval_days, preferred_time_slot),
           companies (id, name, slug)
         `)
         .lte('next_notification_at', now)
@@ -250,16 +250,42 @@ export async function POST(request) {
           });
 
           // Calculate next notification time based on subscriber's interval
-          // This ensures recurring reminders until the review is completed
+          // This matches the logic in SignupWizard.js calculateNextNotification
           const intervalDays = sub.subscribers.notification_interval_days || 30;
           let nextNotificationAt = null;
 
-          if (intervalDays > 0) {
-            // Add variance for natural timing (±20% for regular intervals)
-            const variance = intervalDays >= 1 ? Math.floor(intervalDays * 0.2) : 0;
-            const randomDays = intervalDays + (Math.random() * variance * 2 - variance);
+          if (intervalDays === 0) {
+            // Instant test: reschedule to 10 seconds from now
+            nextNotificationAt = new Date(Date.now() + 10 * 1000).toISOString();
+          } else if (intervalDays < 1) {
+            // Sub-day interval (e.g., 2 minutes test): convert to exact milliseconds
+            const minutes = Math.round(intervalDays * 24 * 60);
+            nextNotificationAt = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+          } else {
+            // Regular interval (1+ days): apply variance, time slot, weekend avoidance
+            const variance = Math.floor(intervalDays * 0.33);
+            const randomDays = intervalDays + Math.floor(Math.random() * (variance * 2 + 1)) - variance;
+
             const nextDate = new Date();
-            nextDate.setTime(nextDate.getTime() + randomDays * 24 * 60 * 60 * 1000);
+            nextDate.setDate(nextDate.getDate() + Math.max(1, randomDays));
+
+            // Apply preferred time slot
+            const timeSlot = sub.subscribers.preferred_time_slot || 'morning';
+            let hour;
+            switch (timeSlot) {
+              case 'morning': hour = 8 + Math.floor(Math.random() * 4); break;
+              case 'afternoon': hour = 12 + Math.floor(Math.random() * 5); break;
+              case 'evening': hour = 17 + Math.floor(Math.random() * 4); break;
+              default: hour = 9 + Math.floor(Math.random() * 10);
+            }
+            nextDate.setHours(hour, Math.floor(Math.random() * 60), 0, 0);
+
+            // Avoid weekends (80% of the time)
+            const dayOfWeek = nextDate.getDay();
+            if ((dayOfWeek === 0 || dayOfWeek === 6) && Math.random() > 0.2) {
+              nextDate.setDate(nextDate.getDate() + (dayOfWeek === 0 ? 1 : -1));
+            }
+
             nextNotificationAt = nextDate.toISOString();
           }
 
