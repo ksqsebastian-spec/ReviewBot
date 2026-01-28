@@ -24,7 +24,6 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/companies', label: 'Unternehmen' },
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/faq', label: 'FAQ' },
   ];
 
   // Helper to check if link is active

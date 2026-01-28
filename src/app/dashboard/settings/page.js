@@ -3,11 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import {
-  LANGUAGES,
   NOTIFICATION_INTERVALS,
   TEST_INTERVALS,
-  UI_TEXT,
-  DEFAULT_LANGUAGE,
   DEFAULT_NOTIFICATION_INTERVAL,
 } from '@/lib/constants';
 import Card from '@/components/ui/Card';
@@ -18,15 +15,16 @@ import Input from '@/components/ui/Input';
   Settings Page
 
   App-wide configuration for:
-  - Language preference (German/English)
   - Default notification interval
   - Email sender settings
   - Test email sending
+
+  NOTE: German-only interface
 */
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
-    default_language: DEFAULT_LANGUAGE,
+    default_language: 'de',
     default_notification_interval_days: DEFAULT_NOTIFICATION_INTERVAL,
     min_days_between_emails: 3,
     email_from_name: 'Review Bot',
@@ -34,7 +32,7 @@ export default function SettingsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [saveResult, setSaveResult] = useState(null); // { success: boolean, message: string }
 
   // Test email state
   const [testEmail, setTestEmail] = useState('');
@@ -42,9 +40,6 @@ export default function SettingsPage() {
   const [testResult, setTestResult] = useState(null);
   const [sendingDue, setSendingDue] = useState(false);
   const [dueResult, setDueResult] = useState(null);
-
-  // Get UI text based on current language
-  const t = UI_TEXT[settings.default_language] || UI_TEXT.de;
 
   // Fetch settings on mount
   useEffect(() => {
@@ -67,7 +62,8 @@ export default function SettingsPage() {
           setSettings(data);
         }
       } catch (err) {
-        // Error handled silently
+        // If table doesn't exist, we'll use defaults and show a warning
+        console.warn('Could not load settings:', err.message);
       } finally {
         setLoading(false);
       }
@@ -79,14 +75,19 @@ export default function SettingsPage() {
   // Handle input changes
   const handleChange = (field, value) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
-    setSaved(false);
+    setSaveResult(null); // Clear previous save result
   };
 
-  // Save settings
+  // Save settings with visible feedback
   const handleSave = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setSaveResult({ success: false, message: 'Datenbankverbindung nicht verfügbar.' });
+      return;
+    }
 
     setSaving(true);
+    setSaveResult(null);
+
     try {
       const { error } = await supabase
         .from('app_settings')
@@ -97,10 +98,14 @@ export default function SettingsPage() {
         });
 
       if (error) throw error;
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+
+      setSaveResult({ success: true, message: 'Einstellungen erfolgreich gespeichert!' });
+      setTimeout(() => setSaveResult(null), 5000);
     } catch (err) {
-      // Silently fail - user sees no success message
+      setSaveResult({
+        success: false,
+        message: `Speichern fehlgeschlagen: ${err.message || 'Unbekannter Fehler'}`,
+      });
     } finally {
       setSaving(false);
     }
@@ -111,9 +116,7 @@ export default function SettingsPage() {
     if (!testEmail || !testEmail.includes('@')) {
       setTestResult({
         success: false,
-        message: settings.default_language === 'de'
-          ? 'Bitte geben Sie eine gültige E-Mail-Adresse ein.'
-          : 'Please enter a valid email address.',
+        message: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
       });
       return;
     }
@@ -133,24 +136,18 @@ export default function SettingsPage() {
       if (response.ok) {
         setTestResult({
           success: true,
-          message: settings.default_language === 'de'
-            ? 'Test-E-Mail erfolgreich gesendet! Prüfen Sie Ihren Posteingang.'
-            : 'Test email sent successfully! Check your inbox.',
+          message: 'Test-E-Mail erfolgreich gesendet! Prüfen Sie Ihren Posteingang.',
         });
       } else {
         setTestResult({
           success: false,
-          message: settings.default_language === 'de'
-            ? 'E-Mail konnte nicht gesendet werden. Bitte Verbindung prüfen.'
-            : 'Email could not be sent. Please check your connection.',
+          message: data.error || 'E-Mail konnte nicht gesendet werden.',
         });
       }
     } catch (err) {
       setTestResult({
         success: false,
-        message: settings.default_language === 'de'
-          ? 'E-Mail konnte nicht gesendet werden. Bitte Verbindung prüfen.'
-          : 'Email could not be sent. Please check your connection.',
+        message: 'E-Mail konnte nicht gesendet werden. Bitte Verbindung prüfen.',
       });
     } finally {
       setSendingTest(false);
@@ -172,24 +169,20 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        const message = settings.default_language === 'de'
-          ? `Erinnerungen versendet: ${data.sent} erfolgreich, ${data.failed} fehlgeschlagen`
-          : `Reminders sent: ${data.sent} successful, ${data.failed} failed`;
-        setDueResult({ success: true, message });
+        setDueResult({
+          success: true,
+          message: `Erinnerungen versendet: ${data.sent} erfolgreich, ${data.failed} fehlgeschlagen`,
+        });
       } else {
         setDueResult({
           success: false,
-          message: settings.default_language === 'de'
-            ? 'E-Mails konnten nicht gesendet werden. Bitte Verbindung prüfen.'
-            : 'Emails could not be sent. Please check your connection.',
+          message: data.error || 'E-Mails konnten nicht gesendet werden.',
         });
       }
     } catch (err) {
       setDueResult({
         success: false,
-        message: settings.default_language === 'de'
-          ? 'E-Mails konnten nicht gesendet werden. Bitte Verbindung prüfen.'
-          : 'Emails could not be sent. Please check your connection.',
+        message: 'E-Mails konnten nicht gesendet werden. Bitte Verbindung prüfen.',
       });
     } finally {
       setSendingDue(false);
@@ -208,54 +201,23 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-2xl">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t.settingsTitle}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Einstellungen</h1>
         <p className="text-gray-600 dark:text-dark-400 mt-1">
-          {settings.default_language === 'de'
-            ? 'App-weite Konfiguration'
-            : 'App-wide configuration'}
+          App-weite Konfiguration
         </p>
       </div>
-
-      {/* Language Settings */}
-      <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.languageLabel}</h2>
-        <div className="space-y-3">
-          {Object.values(LANGUAGES).map((lang) => (
-            <label
-              key={lang.code}
-              className={`
-                flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
-                ${settings.default_language === lang.code
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
-                  : 'border-gray-200 hover:border-gray-300 dark:border-dark-600 dark:hover:border-dark-500'
-                }
-              `}
-            >
-              <input
-                type="radio"
-                name="language"
-                value={lang.code}
-                checked={settings.default_language === lang.code}
-                onChange={() => handleChange('default_language', lang.code)}
-                className="w-4 h-4 text-primary-600"
-              />
-              <span className="font-medium dark:text-dark-100">{lang.nativeName}</span>
-            </label>
-          ))}
-        </div>
-      </Card>
 
       {/* Notification Settings */}
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {settings.default_language === 'de' ? 'Benachrichtigungen' : 'Notifications'}
+          Benachrichtigungen
         </h2>
 
         <div className="space-y-4">
           {/* Default Interval */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {t.defaultIntervalLabel}
+              Standard-Benachrichtigungsintervall
             </label>
             <select
               value={settings.default_notification_interval_days}
@@ -265,7 +227,7 @@ export default function SettingsPage() {
             >
               {NOTIFICATION_INTERVALS.map((interval) => (
                 <option key={interval.value} value={interval.value}>
-                  {interval.label[settings.default_language]}
+                  {interval.label.de}
                 </option>
               ))}
             </select>
@@ -274,9 +236,7 @@ export default function SettingsPage() {
           {/* Minimum Days Between Emails */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {settings.default_language === 'de'
-                ? 'Minimale Tage zwischen E-Mails'
-                : 'Minimum days between emails'}
+              Minimale Tage zwischen E-Mails
             </label>
             <Input
               type="number"
@@ -286,9 +246,7 @@ export default function SettingsPage() {
               onChange={(e) => handleChange('min_days_between_emails', parseInt(e.target.value) || 3)}
             />
             <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
-              {settings.default_language === 'de'
-                ? 'Verhindert Spam durch Begrenzung der E-Mail-Häufigkeit'
-                : 'Prevents spam by limiting email frequency'}
+              Verhindert Spam durch Begrenzung der E-Mail-Häufigkeit
             </p>
           </div>
         </div>
@@ -296,13 +254,13 @@ export default function SettingsPage() {
 
       {/* Email Settings */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.emailSettingsTitle}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">E-Mail-Einstellungen</h2>
 
         <div className="space-y-4">
           {/* From Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {settings.default_language === 'de' ? 'Absendername' : 'From Name'}
+              Absendername
             </label>
             <Input
               value={settings.email_from_name}
@@ -314,7 +272,7 @@ export default function SettingsPage() {
           {/* From Address */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {settings.default_language === 'de' ? 'Absenderadresse' : 'From Address'}
+              Absenderadresse
             </label>
             <Input
               type="email"
@@ -323,9 +281,7 @@ export default function SettingsPage() {
               placeholder="noreply@yourdomain.com"
             />
             <p className="text-sm text-gray-500 dark:text-dark-400 mt-1">
-              {settings.default_language === 'de'
-                ? 'Wird für Gmail SMTP verwendet'
-                : 'Used for Gmail SMTP'}
+              Optional: Wird im E-Mail-Header angezeigt (Gmail SMTP verwendet Ihre Gmail-Adresse)
             </p>
           </div>
         </div>
@@ -334,16 +290,14 @@ export default function SettingsPage() {
       {/* Test Email Section */}
       <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {settings.default_language === 'de' ? 'E-Mail-Test' : 'Email Testing'}
+          E-Mail-Test
         </h2>
 
         <div className="space-y-4">
           {/* Send Test Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {settings.default_language === 'de'
-                ? 'Test-E-Mail senden'
-                : 'Send Test Email'}
+              Test-E-Mail senden
             </label>
             <div className="flex gap-2">
               <Input
@@ -358,7 +312,7 @@ export default function SettingsPage() {
                 loading={sendingTest}
                 variant="secondary"
               >
-                {settings.default_language === 'de' ? 'Senden' : 'Send'}
+                Senden
               </Button>
             </div>
             {testResult && (
@@ -374,23 +328,17 @@ export default function SettingsPage() {
           {/* Send Due Emails */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-2">
-              {settings.default_language === 'de'
-                ? 'Fällige E-Mails jetzt senden'
-                : 'Send Due Emails Now'}
+              Fällige E-Mails jetzt senden
             </label>
             <p className="text-sm text-gray-600 dark:text-dark-300 mb-3">
-              {settings.default_language === 'de'
-                ? 'Sendet E-Mails an alle Abonnenten, deren Benachrichtigungszeit erreicht ist.'
-                : 'Sends emails to all subscribers whose notification time has passed.'}
+              Sendet E-Mails an alle Abonnenten, deren Benachrichtigungszeit erreicht ist.
             </p>
             <Button
               onClick={handleSendDueEmails}
               loading={sendingDue}
               variant="secondary"
             >
-              {settings.default_language === 'de'
-                ? 'Fällige E-Mails senden'
-                : 'Send Due Emails'}
+              Fällige E-Mails senden
             </Button>
             {dueResult && (
               <p className={`text-sm mt-2 ${dueResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -402,32 +350,30 @@ export default function SettingsPage() {
           {/* Test Intervals Info */}
           <div className="bg-white dark:bg-dark-800 rounded-lg p-3 text-sm text-gray-600 dark:text-dark-300">
             <p className="font-medium text-gray-700 dark:text-dark-200 mb-1">
-              {settings.default_language === 'de' ? 'Test-Intervalle:' : 'Test Intervals:'}
+              Test-Intervalle:
             </p>
             <ul className="list-disc list-inside">
               {TEST_INTERVALS.map((interval) => (
                 <li key={interval.value}>
-                  {interval.label[settings.default_language]}
+                  {interval.label.de}
                 </li>
               ))}
             </ul>
             <p className="mt-2 text-gray-500 dark:text-dark-400">
-              {settings.default_language === 'de'
-                ? 'Wählen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.'
-                : 'Select these during signup to receive emails immediately or in 2 minutes.'}
+              Wählen Sie diese beim Anmelden, um E-Mails sofort oder in 2 Minuten zu erhalten.
             </p>
           </div>
         </div>
       </Card>
 
-      {/* Save Button */}
+      {/* Save Button with visible feedback */}
       <div className="flex items-center gap-4">
         <Button onClick={handleSave} loading={saving}>
-          {t.save}
+          Speichern
         </Button>
-        {saved && (
-          <span className="text-green-600 font-medium">
-            {t.savedSuccessfully}
+        {saveResult && (
+          <span className={`font-medium ${saveResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            {saveResult.message}
           </span>
         )}
       </div>

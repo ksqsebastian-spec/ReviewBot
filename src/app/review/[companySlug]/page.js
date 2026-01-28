@@ -153,6 +153,7 @@ function ReviewPageContent() {
   }, [selectedDescriptors, categories]);
 
   // Mark review as completed for subscriber
+  // Also auto-deactivates subscriber if all companies have been reviewed
   const markReviewCompleted = async () => {
     if (!subscriberId || !company || !supabase || reviewCompleted) return;
 
@@ -165,10 +166,24 @@ function ReviewPageContent() {
         .eq('company_id', company.id);
 
       if (updateError) {
-        // Continue silently - don't block user
-        // Don't block user experience
+        // Continue silently - don't block user experience
       } else {
         setReviewCompleted(true);
+
+        // Check if all companies have been reviewed - auto-deactivate if so
+        const { data: remaining } = await supabase
+          .from('subscriber_companies')
+          .select('id')
+          .eq('subscriber_id', subscriberId)
+          .is('review_completed_at', null);
+
+        if (!remaining || remaining.length === 0) {
+          // All companies reviewed — deactivate subscriber (no more emails needed)
+          await supabase
+            .from('subscribers')
+            .update({ is_active: false })
+            .eq('id', subscriberId);
+        }
       }
     } catch (err) {
       // Continue silently

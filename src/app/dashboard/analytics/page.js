@@ -124,46 +124,46 @@ export default function AnalyticsPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytik</h1>
         <p className="text-gray-600 dark:text-dark-400 mt-1">
-          Track your review generation performance
+          Verfolgen Sie die Leistung Ihrer Bewertungsgenerierung
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <p className="text-sm text-gray-600 dark:text-dark-400">Reviews Generated</p>
+          <p className="text-sm text-gray-600 dark:text-dark-400">Bewertungen generiert</p>
           <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalReviews}</p>
         </Card>
 
         <Card>
-          <p className="text-sm text-gray-600 dark:text-dark-400">Reviews Copied</p>
+          <p className="text-sm text-gray-600 dark:text-dark-400">Bewertungen kopiert</p>
           <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.copiedReviews}</p>
           <p className="text-xs text-gray-500 dark:text-dark-500 mt-1">
-            {conversionRate}% conversion rate
+            {conversionRate}% Konversionsrate
           </p>
         </Card>
 
         <Card>
-          <p className="text-sm text-gray-600 dark:text-dark-400">Email Subscribers</p>
+          <p className="text-sm text-gray-600 dark:text-dark-400">E-Mail-Abonnenten</p>
           <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalSubscribers}</p>
         </Card>
 
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 dark:from-green-950/40 dark:to-emerald-950/40 dark:border-green-900">
-          <p className="text-sm text-green-700 dark:text-green-400">Est. SEO Impact</p>
+          <p className="text-sm text-green-700 dark:text-green-400">Gesch. SEO-Einfluss</p>
           <p className="text-3xl font-bold text-green-800 dark:text-green-300 mt-1">+{estimatedSeoBoost}%</p>
           <p className="text-xs text-green-600 dark:text-green-500 mt-1">
-            Local search visibility
+            Lokale Suchsichtbarkeit
           </p>
         </Card>
       </div>
 
       {/* Reviews by Company */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Reviews by Company</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bewertungen nach Unternehmen</h2>
         {stats.reviewsByCompany.length === 0 ? (
-          <p className="text-gray-500 dark:text-dark-400 text-sm">No reviews yet</p>
+          <p className="text-gray-500 dark:text-dark-400 text-sm">Noch keine Bewertungen</p>
         ) : (
           <div className="space-y-3">
             {stats.reviewsByCompany.map((company, index) => (
@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium text-gray-700 dark:text-dark-200">{company.name}</span>
-                    <span className="text-sm text-gray-500 dark:text-dark-400">{company.count} reviews</span>
+                    <span className="text-sm text-gray-500 dark:text-dark-400">{company.count} Bewertungen</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-dark-700 rounded-full h-2">
                     <div
@@ -190,41 +190,41 @@ export default function AnalyticsPage() {
 
       {/* Growth Projection */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Projected Growth</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Prognostiziertes Wachstum</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 10 more reviews</p>
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">Bei 10 weiteren Bewertungen</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">+20%</p>
-            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">Lokale Suchsichtbarkeit</p>
           </div>
           <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 25 more reviews</p>
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">Bei 25 weiteren Bewertungen</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">+50%</p>
-            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">Lokale Suchsichtbarkeit</p>
           </div>
           <div className="text-center p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">If you get 50 more reviews</p>
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-1">Bei 50 weiteren Bewertungen</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">+100%</p>
-            <p className="text-xs text-gray-500 dark:text-dark-500">local search visibility</p>
+            <p className="text-xs text-gray-500 dark:text-dark-500">Lokale Suchsichtbarkeit</p>
           </div>
         </div>
         <p className="text-xs text-gray-500 dark:text-dark-500 mt-4">
-          * Estimates based on typical Google local ranking factors. Actual results may vary.
+          * Schätzungen basierend auf typischen Google-Ranking-Faktoren. Ergebnisse können variieren.
         </p>
       </Card>
 
       {/* Recent Activity */}
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Reviews</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Neueste Bewertungen</h2>
         {recentReviews.length === 0 ? (
-          <p className="text-gray-500 dark:text-dark-400 text-sm">No reviews generated yet</p>
+          <p className="text-gray-500 dark:text-dark-400 text-sm">Noch keine Bewertungen generiert</p>
         ) : (
           <div className="space-y-4">
             {recentReviews.map((review) => (
               <div key={review.id} className="border-b border-gray-100 dark:border-dark-700 pb-4 last:border-0 last:pb-0">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700 dark:text-dark-200">
-                    {review.companies?.name || 'Unknown'}
+                    {review.companies?.name || 'Unbekannt'}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-dark-500">
                     {new Date(review.created_at).toLocaleDateString()}
@@ -239,23 +239,23 @@ export default function AnalyticsPage() {
 
       {/* Tips for More Reviews */}
       <Card className="bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tips for More Reviews</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tipps für mehr Bewertungen</h2>
         <ul className="space-y-2 text-sm text-gray-700 dark:text-dark-200">
           <li className="flex items-start gap-2">
             <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
-            <span>Place QR codes at checkout, reception, or on receipts</span>
+            <span>QR-Codes an der Kasse, am Empfang oder auf Quittungen platzieren</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
-            <span>Ask satisfied customers directly to leave a review</span>
+            <span>Zufriedene Kunden direkt um eine Bewertung bitten</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
-            <span>Send follow-up emails 1-2 days after service</span>
+            <span>Follow-up E-Mails 1-2 Tage nach dem Service senden</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-amber-500 dark:text-amber-400 mt-0.5">•</span>
-            <span>Respond to all reviews (positive and negative)</span>
+            <span>Auf alle Bewertungen antworten (positive und negative)</span>
           </li>
         </ul>
       </Card>
