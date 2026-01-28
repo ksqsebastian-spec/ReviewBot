@@ -154,6 +154,31 @@ export default function SubscribersPage() {
     }
   };
 
+  // Delete subscriber permanently
+  const handleDelete = async (subscriberId) => {
+    if (!confirm('Diesen Abonnenten endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
+
+    try {
+      // First delete subscriber_companies entries
+      await supabase
+        .from('subscriber_companies')
+        .delete()
+        .eq('subscriber_id', subscriberId);
+
+      // Then delete the subscriber
+      const { error } = await supabase
+        .from('subscribers')
+        .delete()
+        .eq('id', subscriberId);
+
+      if (error) throw error;
+
+      setSubscribers((prev) => prev.filter((s) => s.id !== subscriberId));
+    } catch (err) {
+      alert('Fehler beim Löschen. Bitte versuchen Sie es erneut.');
+    }
+  };
+
   // Export to CSV
   const handleExport = () => {
     const headers = ['E-Mail', 'Name', 'Unternehmen', 'Intervall (Tage)', 'Angemeldet am', 'Status'];
@@ -302,7 +327,7 @@ export default function SubscribersPage() {
                   {subscriber.is_active && (
                     <button
                       onClick={() => handleDeactivate(subscriber.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-900/20"
+                      className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg dark:text-dark-400 dark:hover:text-yellow-400 dark:hover:bg-yellow-900/20"
                       title="Deaktivieren"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,6 +335,15 @@ export default function SubscribersPage() {
                       </svg>
                     </button>
                   )}
+                  <button
+                    onClick={() => handleDelete(subscriber.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg dark:text-dark-400 dark:hover:text-red-400 dark:hover:bg-red-900/20"
+                    title="Löschen"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </Card>
