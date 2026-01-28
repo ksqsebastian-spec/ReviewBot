@@ -4,7 +4,7 @@
   Third step of signup wizard - notification preferences.
 */
 
-import { NOTIFICATION_INTERVALS, TEST_INTERVALS, TIME_SLOTS } from '@/lib/constants';
+import { NOTIFICATION_INTERVALS, TIME_SLOTS } from '@/lib/constants';
 import Button from '@/components/ui/Button';
 
 export default function SignupStep3Preferences({
@@ -47,20 +47,11 @@ export default function SignupStep3Preferences({
           }
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
-          {/* Regular intervals */}
           {NOTIFICATION_INTERVALS.map((interval) => (
             <option key={interval.value} value={interval.value}>
               {interval.label.de}
             </option>
           ))}
-          {/* Test intervals - for testing email delivery */}
-          <optgroup label="--- Test ---">
-            {TEST_INTERVALS.map((interval) => (
-              <option key={`test-${interval.value}`} value={interval.value}>
-                {interval.label.de}
-              </option>
-            ))}
-          </optgroup>
         </select>
       </div>
 
