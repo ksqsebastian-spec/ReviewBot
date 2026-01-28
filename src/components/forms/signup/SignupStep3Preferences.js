@@ -4,7 +4,7 @@
   Third step of signup wizard - notification preferences.
 */
 
-import { NOTIFICATION_INTERVALS, TEST_INTERVALS, TIME_SLOTS, LANGUAGES } from '@/lib/constants';
+import { NOTIFICATION_INTERVALS, TEST_INTERVALS, TIME_SLOTS } from '@/lib/constants';
 import Button from '@/components/ui/Button';
 
 export default function SignupStep3Preferences({
@@ -86,33 +86,6 @@ export default function SignupStep3Preferences({
               `}
             >
               {slot.label.de}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Language preference */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Sprache
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {Object.values(LANGUAGES).map((lang) => (
-            <button
-              key={lang.code}
-              type="button"
-              onClick={() =>
-                setFormData((prev) => ({ ...prev, preferredLanguage: lang.code }))
-              }
-              className={`
-                p-3 rounded-lg border-2 text-sm font-medium transition-colors
-                ${formData.preferredLanguage === lang.code
-                  ? 'border-primary-500 bg-primary-50 text-primary-700'
-                  : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                }
-              `}
-            >
-              {lang.nativeName}
             </button>
           ))}
         </div>

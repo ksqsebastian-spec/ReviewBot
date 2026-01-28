@@ -204,9 +204,14 @@ export default function QRCodesPage() {
             {/* Link */}
             <div className="bg-gray-50 dark:bg-dark-800 rounded-lg p-3">
               <p className="text-xs text-gray-500 dark:text-dark-400 mb-1">Link:</p>
-              <p className="text-sm text-gray-900 dark:text-dark-100 break-all font-mono">
+              <a
+                href={getQRUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary-600 dark:text-primary-400 break-all font-mono hover:underline"
+              >
                 {getQRUrl()}
-              </p>
+              </a>
             </div>
           </Card>
 
