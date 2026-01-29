@@ -28,6 +28,7 @@ export default function CompanyEditPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // New category input
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -191,6 +192,31 @@ export default function CompanyEditPage() {
     setShowEditModal(false);
   };
 
+  // Delete company
+  const handleDeleteCompany = async () => {
+    if (!confirm(`Unternehmen "${company.name}" wirklich löschen? Alle Bewertungsbeschreibungen werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      // Delete the company (cascades to descriptor_categories and descriptors)
+      const { error } = await supabase
+        .from('companies')
+        .delete()
+        .eq('id', companyId);
+
+      if (error) throw error;
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Fehler beim Löschen des Unternehmens:', err);
+      alert('Unternehmen konnte nicht gelöscht werden.');
+      setDeleting(false);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -265,17 +291,30 @@ export default function CompanyEditPage() {
             </div>
           </div>
 
-          {/* Edit button */}
-          <Button
-            variant="secondary"
-            onClick={() => setShowEditModal(true)}
-            className="text-sm"
-          >
-            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Bearbeiten
-          </Button>
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setShowEditModal(true)}
+              className="text-sm"
+            >
+              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Bearbeiten
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleDeleteCompany}
+              loading={deleting}
+              className="text-sm !text-red-600 hover:!bg-red-50 dark:!text-red-400 dark:hover:!bg-red-900/20"
+            >
+              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Löschen
+            </Button>
+          </div>
         </div>
       </Card>
 
