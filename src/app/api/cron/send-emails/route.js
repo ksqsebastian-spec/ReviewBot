@@ -264,10 +264,43 @@ export async function GET(request) {
       }
     }
 
+    // Auto-cleanup: Deactivate subscribers who completed all their reviews
+    let deactivatedCount = 0;
+    try {
+      const { data: activeSubscribers } = await supabase
+        .from('subscribers')
+        .select(`
+          id,
+          subscriber_companies (review_completed_at)
+        `)
+        .eq('is_active', true);
+
+      if (activeSubscribers) {
+        // Find subscribers where ALL companies have been reviewed
+        const toDeactivate = activeSubscribers.filter(
+          (sub) =>
+            sub.subscriber_companies.length > 0 &&
+            sub.subscriber_companies.every((sc) => sc.review_completed_at !== null)
+        );
+
+        if (toDeactivate.length > 0) {
+          const ids = toDeactivate.map((sub) => sub.id);
+          await supabase
+            .from('subscribers')
+            .update({ is_active: false })
+            .in('id', ids);
+          deactivatedCount = toDeactivate.length;
+        }
+      }
+    } catch (cleanupErr) {
+      console.error('Cron cleanup error:', cleanupErr);
+    }
+
     return Response.json({
       success: true,
       sent: results.filter((r) => r.success).length,
       failed: results.filter((r) => !r.success).length,
+      deactivated: deactivatedCount,
       timestamp: now,
       results,
     });
