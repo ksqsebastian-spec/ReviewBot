@@ -28,13 +28,13 @@ export default function ReviewPreview({
   return (
     <div className="bg-gray-50 rounded-xl p-6">
       <h3 className="text-sm font-semibold text-gray-700 mb-3">
-        Your Review Preview
+        Ihre Bewertungsvorschau
       </h3>
 
       {needsMoreSelections ? (
         // Placeholder when not enough selections
         <div className="text-gray-400 italic">
-          Select at least {minSelections} descriptions above to generate your review...
+          Wählen Sie mindestens {minSelections} Beschreibungen aus, um Ihre Bewertung zu erstellen...
         </div>
       ) : (
         // Actual review text
@@ -56,7 +56,7 @@ export default function ReviewPreview({
               </svg>
             ))}
             <span className="text-sm text-gray-500 ml-2">
-              5-star review
+              5-Sterne-Bewertung
             </span>
           </div>
         </div>

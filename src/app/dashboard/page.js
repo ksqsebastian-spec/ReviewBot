@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -17,14 +16,14 @@ import GettingStarted from '@/components/dashboard/GettingStarted';
 */
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { selectedCompanyId, selectedCompany, refetchCompanies, companies } = useCompanyContext();
+  const { selectedCompanyId, selectedCompany, refetchCompanies, companies, setSelectedCompanyId } = useCompanyContext();
   const [stats, setStats] = useState({ companies: 0, reviews: 0 });
   const [reviewsByCompany, setReviewsByCompany] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
   const [resetting, setResetting] = useState(false);
+  const [deletingCompany, setDeletingCompany] = useState(false);
 
   const fetchStats = useCallback(async (showLoading = true) => {
     if (!supabase) { setLoading(false); return; }
@@ -108,8 +107,38 @@ export default function DashboardPage() {
   };
 
   const handleEditCompany = () => {
-    if (selectedCompanyId) {
-      router.push(`/dashboard/companies/${selectedCompanyId}`);
+    if (selectedCompany) {
+      const fullCompany = companies.find(c => c.id === selectedCompanyId);
+      setEditingCompany(fullCompany || selectedCompany);
+      setShowAddModal(true);
+    }
+  };
+
+  const handleDeleteCompany = async () => {
+    if (!selectedCompanyId || !selectedCompany) return;
+
+    if (!confirm(`Unternehmen "${selectedCompany.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return;
+    }
+
+    setDeletingCompany(true);
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .delete()
+        .eq('id', selectedCompanyId);
+
+      if (error) throw error;
+
+      // Clear selection and refetch companies
+      if (setSelectedCompanyId) setSelectedCompanyId(null);
+      if (refetchCompanies) refetchCompanies();
+      fetchStats();
+    } catch (err) {
+      console.error('Dashboard: Fehler beim Löschen des Unternehmens:', err);
+      alert('Unternehmen konnte nicht gelöscht werden.');
+    } finally {
+      setDeletingCompany(false);
     }
   };
 
@@ -140,6 +169,21 @@ export default function DashboardPage() {
           )}
         </div>
         <div className="flex gap-2">
+          {/* Delete company button - only when company selected */}
+          {selectedCompanyId && (
+            <Button
+              variant="secondary"
+              onClick={handleDeleteCompany}
+              loading={deletingCompany}
+              className="text-sm px-3 py-2 !text-red-600 hover:!bg-red-50 dark:!text-red-400 dark:hover:!bg-red-900/20"
+              title="Unternehmen löschen"
+            >
+              <svg className="w-4 h-4 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span className="hidden sm:inline">Löschen</span>
+            </Button>
+          )}
           {/* Reset reviews button */}
           <Button
             variant="secondary"

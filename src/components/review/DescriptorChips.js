@@ -40,10 +40,10 @@ export default function DescriptorChips({
       {/* Selection counter */}
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-600">
-          Select phrases that describe your experience:
+          Wählen Sie Beschreibungen, die Ihre Erfahrung beschreiben:
         </span>
         <span className={`font-medium ${selectionCount > 0 ? 'text-primary-600' : 'text-gray-400'}`}>
-          {selectionCount}/{maxSelections} selected
+          {selectionCount}/{maxSelections} ausgewählt
         </span>
       </div>
 
@@ -104,7 +104,7 @@ export default function DescriptorChips({
       {/* Hint when at max */}
       {isAtMax && (
         <p className="text-sm text-amber-600">
-          Maximum selections reached. Deselect an option to choose a different one.
+          Maximale Auswahl erreicht. Wählen Sie eine Option ab, um eine andere auszuwählen.
         </p>
       )}
     </div>
