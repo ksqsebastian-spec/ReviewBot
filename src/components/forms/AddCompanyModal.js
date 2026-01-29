@@ -22,7 +22,6 @@ import Button from '@/components/ui/Button';
 export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = null }) {
   const isEditMode = !!company;
   const [name, setName] = useState('');
-  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -30,10 +29,8 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
   useEffect(() => {
     if (isOpen && company) {
       setName(company.name || '');
-      setGoogleReviewUrl(company.google_review_url || '');
     } else if (!isOpen) {
       setName('');
-      setGoogleReviewUrl('');
       setError(null);
     }
   }, [isOpen, company]);
@@ -66,7 +63,6 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
         // Update existing company
         const updates = {
           name: name.trim(),
-          google_review_url: googleReviewUrl.trim() || null,
         };
 
         // Only update slug if name changed
@@ -110,7 +106,6 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
           .insert({
             name: name.trim(),
             slug: slug,
-            google_review_url: googleReviewUrl.trim() || null,
           })
           .select()
           .single();
@@ -142,22 +137,6 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
             placeholder="z.B. Muster GmbH"
             autoFocus
           />
-        </div>
-
-        {/* Google Review URL */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-1">
-            Google Bewertungslink
-          </label>
-          <Input
-            type="url"
-            value={googleReviewUrl}
-            onChange={(e) => setGoogleReviewUrl(e.target.value)}
-            placeholder="https://g.page/r/..."
-          />
-          <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-            Optional: Link zur Google-Bewertungsseite
-          </p>
         </div>
 
         {/* Error Message */}

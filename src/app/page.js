@@ -135,34 +135,26 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8">
       <div className="w-full max-w-md space-y-8">
 
-        {/* Company Name Display - prominent and set in stone */}
+        {/* Company Selector - always show dropdown */}
         <div className="text-center">
-          {companies.length > 1 ? (
-            <select
-              value={selectedCompany?.id || ''}
-              onChange={(e) => {
-                const company = companies.find((c) => c.id === e.target.value);
-                setSelectedCompany(company);
-              }}
-              className="px-6 py-3 border-2 border-primary-200 dark:border-primary-800 rounded-xl
-                         bg-white dark:bg-dark-800 text-gray-900 dark:text-white
-                         text-2xl font-bold text-center
-                         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                         appearance-none cursor-pointer shadow-sm"
-            >
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <div className="inline-block px-8 py-4 bg-white dark:bg-dark-800 rounded-xl shadow-md border-2 border-primary-200 dark:border-primary-800">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {selectedCompany?.name}
-              </h1>
-            </div>
-          )}
+          <select
+            value={selectedCompany?.id || ''}
+            onChange={(e) => {
+              const company = companies.find((c) => c.id === e.target.value);
+              setSelectedCompany(company);
+            }}
+            className="px-6 py-3 border-2 border-primary-200 dark:border-primary-800 rounded-xl
+                       bg-white dark:bg-dark-800 text-gray-900 dark:text-white
+                       text-2xl font-bold text-center
+                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                       cursor-pointer shadow-sm"
+          >
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* QR Code — large, centered, always on white for scannability */}
