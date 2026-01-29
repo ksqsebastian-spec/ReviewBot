@@ -10,40 +10,35 @@ import Button from '@/components/ui/Button';
   AddCompanyModal Component
 
   Simple modal for adding a new company directly from the dashboard.
-  Creates a company with name, slug, and Google Review URL.
+  Slug is auto-generated from name (hidden from user).
 */
 
 export default function AddCompanyModal({ isOpen, onClose, onSuccess }) {
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
   const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-
-  // Auto-generate slug from name
-  useEffect(() => {
-    if (name) {
-      const generated = name
-        .toLowerCase()
-        .replace(/[äöüß]/g, (match) => {
-          const replacements = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' };
-          return replacements[match];
-        })
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      setSlug(generated);
-    }
-  }, [name]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
       setName('');
-      setSlug('');
       setGoogleReviewUrl('');
       setError(null);
     }
   }, [isOpen]);
+
+  // Generate slug from name (internal, not shown to user)
+  const generateSlug = (companyName) => {
+    return companyName
+      .toLowerCase()
+      .replace(/[äöüß]/g, (match) => {
+        const replacements = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' };
+        return replacements[match];
+      })
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,8 +49,9 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess }) {
       return;
     }
 
-    if (!slug.trim()) {
-      setError('Bitte geben Sie einen URL-Slug ein.');
+    const slug = generateSlug(name);
+    if (!slug) {
+      setError('Der Firmenname ergibt keinen gültigen URL-Slug.');
       return;
     }
 
@@ -70,7 +66,7 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess }) {
         .single();
 
       if (existing) {
-        setError('Dieser URL-Slug wird bereits verwendet. Bitte wählen Sie einen anderen.');
+        setError('Ein Unternehmen mit diesem Namen existiert bereits.');
         setSaving(false);
         return;
       }
@@ -80,7 +76,7 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess }) {
         .from('companies')
         .insert({
           name: name.trim(),
-          slug: slug.trim(),
+          slug: slug,
           google_review_url: googleReviewUrl.trim() || null,
         })
         .select()
@@ -112,21 +108,6 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess }) {
             placeholder="z.B. Muster GmbH"
             autoFocus
           />
-        </div>
-
-        {/* Slug */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-1">
-            URL-Slug *
-          </label>
-          <Input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-            placeholder="z.B. muster-gmbh"
-          />
-          <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-            Wird in der URL verwendet: /signup/{slug || 'slug'}
-          </p>
         </div>
 
         {/* Google Review URL */}
