@@ -22,7 +22,7 @@ import Button from '@/components/ui/Button';
 export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = null }) {
   const isEditMode = !!company;
   const [name, setName] = useState('');
-  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
+  const [googleReviewLink, setGoogleReviewLink] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -30,10 +30,10 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
   useEffect(() => {
     if (isOpen && company) {
       setName(company.name || '');
-      setGoogleReviewUrl(company.google_review_url || '');
+      setGoogleReviewLink(company.google_review_link || '');
     } else if (!isOpen) {
       setName('');
-      setGoogleReviewUrl('');
+      setGoogleReviewLink('');
       setError(null);
     }
   }, [isOpen, company]);
@@ -59,6 +59,11 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
       return;
     }
 
+    if (!googleReviewLink.trim()) {
+      setError('Bitte geben Sie den Google Bewertungslink ein.');
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -66,7 +71,7 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
         // Update existing company
         const updates = {
           name: name.trim(),
-          google_review_url: googleReviewUrl.trim() || null,
+          google_review_link: googleReviewLink.trim(),
         };
 
         // Only update slug if name changed
@@ -110,7 +115,7 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
           .insert({
             name: name.trim(),
             slug: slug,
-            google_review_url: googleReviewUrl.trim() || null,
+            google_review_link: googleReviewLink.trim(),
           })
           .select()
           .single();
@@ -151,8 +156,8 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
           </label>
           <Input
             type="url"
-            value={googleReviewUrl}
-            onChange={(e) => setGoogleReviewUrl(e.target.value)}
+            value={googleReviewLink}
+            onChange={(e) => setGoogleReviewLink(e.target.value)}
             placeholder="https://g.page/r/..."
           />
           <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
