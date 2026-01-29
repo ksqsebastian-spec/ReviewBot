@@ -14,8 +14,9 @@ import AddCompanyModal from '@/components/forms/AddCompanyModal';
   This is the main page users see when entering the dashboard.
 
   FEATURES:
-  - Stats: companies, subscribers, reviews generated
+  - Stats: companies, subscribers, reviews generated, pending reviews
   - Add Company button (opens modal)
+  - Cleanup inactive subscribers button
   - Reviews due per company table
 */
 
@@ -25,10 +26,13 @@ export default function DashboardPage() {
     companies: 0,
     subscribers: 0,
     reviews: 0,
+    pendingReviews: 0,
   });
   const [reviewsByCompany, setReviewsByCompany] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [cleaningUp, setCleaningUp] = useState(false);
+  const [cleanupResult, setCleanupResult] = useState(null);
 
   // Fetch stats function (memoized for reuse)
   const fetchStats = useCallback(async (showLoading = true) => {
@@ -63,10 +67,18 @@ export default function DashboardPage() {
           subscriberCount = count || 0;
         }
 
+        // Count pending reviews for this company
+        const { count: pendingCount } = await supabase
+          .from('subscriber_companies')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', selectedCompanyId)
+          .is('review_completed_at', null);
+
         setStats({
           companies: 1,
           subscribers: subscriberCount || 0,
           reviews: reviewsRes.count || 0,
+          pendingReviews: pendingCount || 0,
         });
       } else {
         // Fetch global stats
@@ -85,10 +97,17 @@ export default function DashboardPage() {
           subscriberCount = count || 0;
         }
 
+        // Count all pending reviews (no review_completed_at)
+        const { count: pendingCount } = await supabase
+          .from('subscriber_companies')
+          .select('id', { count: 'exact', head: true })
+          .is('review_completed_at', null);
+
         setStats({
           companies: companiesRes.count || 0,
           subscribers: subscriberCount || 0,
           reviews: reviewsRes.count || 0,
+          pendingReviews: pendingCount || 0,
         });
 
         // Fetch reviews due per company
@@ -163,6 +182,60 @@ export default function DashboardPage() {
     if (refetchCompanies) refetchCompanies();
   };
 
+  // Cleanup inactive subscribers (those who completed all their reviews)
+  const handleCleanupInactive = async () => {
+    if (!supabase) return;
+
+    setCleaningUp(true);
+    setCleanupResult(null);
+
+    try {
+      // Find all active subscribers with their company subscriptions
+      const { data: subscribers, error: fetchError } = await supabase
+        .from('subscribers')
+        .select(`
+          id,
+          subscriber_companies (review_completed_at)
+        `)
+        .eq('is_active', true);
+
+      if (fetchError) throw fetchError;
+
+      // Filter to those where ALL companies have been reviewed
+      const toDeactivate = (subscribers || []).filter(
+        (sub) =>
+          sub.subscriber_companies.length > 0 &&
+          sub.subscriber_companies.every((sc) => sc.review_completed_at !== null)
+      );
+
+      if (toDeactivate.length === 0) {
+        setCleanupResult({ count: 0, message: 'Keine inaktiven Abonnenten gefunden.' });
+        return;
+      }
+
+      // Deactivate them
+      const ids = toDeactivate.map((sub) => sub.id);
+      const { error: updateError } = await supabase
+        .from('subscribers')
+        .update({ is_active: false })
+        .in('id', ids);
+
+      if (updateError) throw updateError;
+
+      setCleanupResult({
+        count: toDeactivate.length,
+        message: `${toDeactivate.length} Abonnent${toDeactivate.length > 1 ? 'en' : ''} deaktiviert.`,
+      });
+
+      // Refresh stats
+      fetchStats(false);
+    } catch (err) {
+      setCleanupResult({ count: 0, message: 'Fehler beim Bereinigen: ' + err.message });
+    } finally {
+      setCleaningUp(false);
+    }
+  };
+
   const statCards = [
     {
       label: 'Unternehmen',
@@ -186,6 +259,16 @@ export default function DashboardPage() {
       color: 'green',
     },
     {
+      label: 'Ausstehende Bewertungen',
+      value: stats.pendingReviews,
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: 'purple',
+    },
+    {
       label: 'Bewertungen generiert',
       value: stats.reviews,
       icon: (
@@ -200,6 +283,7 @@ export default function DashboardPage() {
   const colorClasses = {
     blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
     green: 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
     amber: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
   };
 
@@ -221,16 +305,46 @@ export default function DashboardPage() {
               : 'Übersicht Ihrer Review-Plattform'}
           </p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Neues Unternehmen
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            onClick={handleCleanupInactive}
+            disabled={cleaningUp}
+          >
+            {cleaningUp ? (
+              <>
+                <svg className="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Bereinigen...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Inaktive Abonnenten entfernen
+              </>
+            )}
+          </Button>
+          <Button onClick={() => setShowAddModal(true)}>
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Neues Unternehmen
+          </Button>
+        </div>
       </div>
 
+      {/* Cleanup Result Message */}
+      {cleanupResult && (
+        <div className={`p-4 rounded-lg ${cleanupResult.count > 0 ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-50 text-gray-600 dark:bg-dark-800 dark:text-dark-300'}`}>
+          {cleanupResult.message}
+        </div>
+      )}
+
       {/* Stats Grid */}
-      <div className={`grid grid-cols-1 gap-6 ${selectedCompanyId ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+      <div className={`grid grid-cols-1 gap-6 ${selectedCompanyId ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
         {displayedStatCards.map((stat) => (
           <Card key={stat.label}>
             <div className="flex items-center gap-4">
