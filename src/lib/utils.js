@@ -112,7 +112,7 @@ export async function copyToClipboard(text) {
     document.body.removeChild(textArea);
     return true;
   } catch (error) {
-    // Silently fail - user will see the copy didn't work
+    console.error('copyToClipboard: Fehler beim Kopieren:', error);
     return false;
   }
 }

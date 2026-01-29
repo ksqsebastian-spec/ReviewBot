@@ -64,8 +64,8 @@ export function CompanyProvider({ children }) {
 
         if (error) throw error;
         setCompanies(data || []);
-      } catch {
-        // Fetch failed — selector will be empty
+      } catch (err) {
+        console.error('CompanyContext: Fehler beim Laden der Unternehmen:', err);
       } finally {
         setLoading(false);
         setHasFetched(true);
@@ -96,8 +96,8 @@ export function CompanyProvider({ children }) {
 
       if (error) throw error;
       setCompanies(data || []);
-    } catch {
-      // Silently fail
+    } catch (err) {
+      console.error('CompanyContext: Fehler beim Aktualisieren der Unternehmen:', err);
     }
   }, []);
 
