@@ -59,7 +59,7 @@ export function CompanyProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('companies')
-          .select('id, name, slug')
+          .select('id, name, slug, google_review_url')
           .order('name');
 
         if (error) throw error;
@@ -91,7 +91,7 @@ export function CompanyProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('companies')
-        .select('id, name, slug')
+        .select('id, name, slug, google_review_url')
         .order('name');
 
       if (error) throw error;
