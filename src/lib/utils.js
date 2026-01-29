@@ -51,12 +51,12 @@ export function capitalize(text) {
 export function combineDescriptors(descriptors) {
   if (!descriptors || descriptors.length === 0) return '';
   if (descriptors.length === 1) return descriptors[0];
-  if (descriptors.length === 2) return `${descriptors[0]} and ${descriptors[1]}`;
+  if (descriptors.length === 2) return `${descriptors[0]} und ${descriptors[1]}`;
 
-  // Oxford comma: "A, B, and C"
+  // German style: "A, B und C" (no comma before "und")
   const allButLast = descriptors.slice(0, -1).join(', ');
   const last = descriptors[descriptors.length - 1];
-  return `${allButLast}, and ${last}`;
+  return `${allButLast} und ${last}`;
 }
 
 /**
@@ -118,13 +118,13 @@ export async function copyToClipboard(text) {
 }
 
 /**
- * Formats a date for display
+ * Formats a date for display in German format
  *
  * @param {string|Date} date - Date to format
  * @returns {string} Formatted date string
  */
 export function formatDate(date) {
-  return new Date(date).toLocaleDateString('en-US', {
+  return new Date(date).toLocaleDateString('de-DE', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

@@ -5,21 +5,18 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import QRCode from '@/components/ui/QRCode';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 
 /*
   Home Page — Kiosk-Ready Landing
 
   Minimal page designed for display at business locations (tablet, screen).
-  Shows a QR code for the selected company's review page,
-  plus an inline newsletter signup that redirects to the full wizard.
+  Shows a QR code for the selected company's review page.
 
   LAYOUT:
   1. Company selector (dropdown)
   2. Large QR code → /review/[slug]
-  3. Divider
-  4. Newsletter email input → redirects to /signup/[slug]?email=...
+  3. Reviews stats box showing generated reviews per company
 */
 
 export default function HomePage() {
@@ -28,11 +25,11 @@ export default function HomePage() {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [email, setEmail] = useState('');
+  const [reviewStats, setReviewStats] = useState([]);
 
-  // Fetch companies on mount
+  // Fetch companies and review stats on mount
   useEffect(() => {
-    async function fetchCompanies() {
+    async function fetchData() {
       if (!supabase) {
         setError('Datenbankverbindung nicht verfügbar.');
         setLoading(false);
@@ -40,24 +37,45 @@ export default function HomePage() {
       }
 
       try {
-        const { data, error: fetchError } = await supabase
+        // Fetch companies
+        const { data: companiesData, error: fetchError } = await supabase
           .from('companies')
           .select('id, name, slug')
           .order('name');
 
         if (fetchError) throw fetchError;
-        setCompanies(data || []);
-        if (data && data.length > 0) {
-          setSelectedCompany(data[0]);
+        setCompanies(companiesData || []);
+        if (companiesData && companiesData.length > 0) {
+          setSelectedCompany(companiesData[0]);
+        }
+
+        // Fetch review counts per company
+        const { data: reviewData } = await supabase
+          .from('generated_reviews')
+          .select('company_id, companies (id, name)')
+          .not('company_id', 'is', null);
+
+        if (reviewData) {
+          const statsMap = {};
+          reviewData.forEach((review) => {
+            if (!review.companies) return;
+            const companyId = review.company_id;
+            if (!statsMap[companyId]) {
+              statsMap[companyId] = { id: companyId, name: review.companies.name, count: 0 };
+            }
+            statsMap[companyId].count++;
+          });
+          setReviewStats(Object.values(statsMap).sort((a, b) => b.count - a.count));
         }
       } catch (err) {
+        console.error('Homepage: Fehler beim Laden:', err);
         setError('Unternehmen konnten nicht geladen werden. Bitte erneut versuchen.');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchCompanies();
+    fetchData();
   }, []);
 
   // Build review URL for the selected company
@@ -65,13 +83,6 @@ export default function HomePage() {
     if (!selectedCompany) return '';
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     return `${baseUrl}/review/${selectedCompany.slug}`;
-  };
-
-  // Handle newsletter signup — redirect to wizard with email pre-filled
-  const handleNewsletterSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !email.includes('@') || !selectedCompany) return;
-    router.push(`/signup/${selectedCompany.slug}?email=${encodeURIComponent(email)}`);
   };
 
   // Loading state
@@ -168,35 +179,30 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-200 dark:bg-dark-700" />
-          <span className="text-sm text-gray-400 dark:text-dark-500">oder</span>
-          <div className="flex-1 h-px bg-gray-200 dark:bg-dark-700" />
-        </div>
-
-        {/* Newsletter Signup */}
-        <div className="text-center space-y-3">
-          <p className="text-gray-600 dark:text-dark-300 font-medium">
-            Für Erinnerungen anmelden
-          </p>
-          <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="ihre@email.de"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1"
-            />
-            <Button type="submit" disabled={!email.includes('@')}>
-              Anmelden
-            </Button>
-          </form>
-          <p className="text-xs text-gray-400 dark:text-dark-500">
-            Sie werden zur Anmeldung weitergeleitet
-          </p>
-        </div>
+        {/* Reviews Stats Box */}
+        {reviewStats.length > 0 && (
+          <Card className="mt-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-dark-200 mb-3">
+              Generierte Bewertungen
+            </h3>
+            <div className="space-y-2">
+              {reviewStats.map((stat) => (
+                <div
+                  key={stat.id}
+                  className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-dark-700 last:border-0"
+                >
+                  <span className="text-sm text-gray-600 dark:text-dark-300">{stat.name}</span>
+                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                    {stat.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 dark:text-dark-500 mt-3 text-center">
+              Bewertungen über diese Plattform erstellt
+            </p>
+          </Card>
+        )}
 
       </div>
     </div>

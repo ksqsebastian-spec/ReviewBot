@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { UI_TEXT, DEFAULT_LANGUAGE } from '@/lib/constants';
+import { UI_TEXT } from '@/lib/constants';
 import QRCode from '@/components/ui/QRCode';
 import Button from '@/components/ui/Button';
 
@@ -14,21 +14,17 @@ import Button from '@/components/ui/Button';
 
   Features:
   - Company selector dropdown
-  - Toggle between Review page and Signup page QR
   - Print functionality
   - Copy link button
 */
 
-export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
+export default function QRCodePanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [qrType, setQrType] = useState('review'); // 'review' or 'signup'
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const printRef = useRef(null);
-
-  const t = UI_TEXT[language] || UI_TEXT.de;
 
   // Fetch companies
   useEffect(() => {
@@ -61,13 +57,11 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
     }
   }, [isOpen, companies.length]);
 
-  // Generate URL based on type
+  // Generate review URL
   const getQRUrl = () => {
     if (!selectedCompany) return '';
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    return qrType === 'review'
-      ? `${baseUrl}/review/${selectedCompany.slug}`
-      : `${baseUrl}/signup/${selectedCompany.slug}`;
+    return `${baseUrl}/review/${selectedCompany.slug}`;
   };
 
   // Copy URL to clipboard
@@ -129,9 +123,7 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
         <div class="qr-container">
           <div class="company-name">${selectedCompany?.name || ''}</div>
           ${printContent.innerHTML}
-          <div class="instruction">
-            ${qrType === 'review' ? t.scanToReview : t.scanToSignup}
-          </div>
+          <div class="instruction">${UI_TEXT.scanToReview}</div>
           <div class="url">${getQRUrl()}</div>
         </div>
       </body>
@@ -152,8 +144,8 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
           hover:bg-primary-700 dark:hover:bg-primary-400 transition-all shadow-lg
           ${isOpen ? 'translate-x-full' : ''}
         `}
-        title={t.qrCode}
-        aria-label={t.qrCode}
+        title={UI_TEXT.qrCode}
+        aria-label={UI_TEXT.qrCode}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -170,7 +162,7 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
-          <h2 className="font-semibold text-gray-900 dark:text-white">{t.qrCode}</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-white">{UI_TEXT.qrCode}</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="p-1 hover:bg-gray-100 dark:hover:bg-dark-800 rounded"
@@ -190,14 +182,14 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
             </div>
           ) : companies.length === 0 ? (
             <p className="text-gray-500 dark:text-dark-400 text-center py-8">
-              {language === 'de' ? 'Keine Unternehmen vorhanden' : 'No companies available'}
+              Keine Unternehmen vorhanden
             </p>
           ) : (
             <>
               {/* Company Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-dark-200 mb-1">
-                  {t.selectCompany}
+                  {UI_TEXT.selectCompany}
                 </label>
                 <select
                   value={selectedCompany?.id || ''}
@@ -217,34 +209,6 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
                 </select>
               </div>
 
-              {/* QR Type Toggle */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setQrType('review')}
-                  className={`
-                    flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors
-                    ${qrType === 'review'
-                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-500'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:hover:bg-dark-700'
-                    }
-                  `}
-                >
-                  {t.reviewPage}
-                </button>
-                <button
-                  onClick={() => setQrType('signup')}
-                  className={`
-                    flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors
-                    ${qrType === 'signup'
-                      ? 'bg-primary-100 text-primary-700 border-2 border-primary-500 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-500'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:hover:bg-dark-700'
-                    }
-                  `}
-                >
-                  {t.signupPage}
-                </button>
-              </div>
-
               {/* QR Code Display */}
               <div ref={printRef} className="flex justify-center py-4">
                 <QRCode url={getQRUrl()} size={200} />
@@ -261,19 +225,17 @@ export default function QRCodePanel({ language = DEFAULT_LANGUAGE }) {
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
-                  {t.printQR}
+                  {UI_TEXT.printQR}
                 </Button>
                 <Button variant="secondary" onClick={handleCopy} className="w-full">
                   {copied ? (
-                    <span className="text-green-600 dark:text-green-400">
-                      {language === 'de' ? 'Kopiert!' : 'Copied!'}
-                    </span>
+                    <span className="text-green-600 dark:text-green-400">Kopiert!</span>
                   ) : (
                     <>
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
-                      {language === 'de' ? 'Link kopieren' : 'Copy Link'}
+                      Link kopieren
                     </>
                   )}
                 </Button>

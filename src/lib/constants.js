@@ -54,11 +54,14 @@ export const DEFAULT_DESCRIPTOR_CATEGORIES = [
 
 // Review templates that combine selected descriptors
 // The {descriptors} placeholder gets replaced with user selections
+// Written in a casual, human tone - avoiding overly formal AI-sounding language
 export const REVIEW_TEMPLATES = [
-  'Ich hatte eine wunderbare Erfahrung. {descriptors}. Ich würde sie ohne Zögern weiterempfehlen.',
-  'Wirklich beeindruckt von meinem Besuch. {descriptors}. Ich freue mich auf meinen nächsten Termin.',
-  '{descriptors}. Insgesamt eine fantastische Erfahrung, die ich jedem empfehlen würde.',
-  'Aus meiner Erfahrung kann ich sagen, dass {descriptors}. Fünf Sterne wohlverdient.',
+  'Sehr zufrieden! {descriptors}. Kann ich nur empfehlen.',
+  'War heute da und muss sagen: {descriptors}. Gerne wieder!',
+  '{descriptors}. Hat mir gut gefallen, komme bestimmt nochmal.',
+  'Top Erfahrung gemacht. {descriptors}. Daumen hoch!',
+  '{descriptors}. Bin wirklich positiv überrascht worden.',
+  'Kann ich empfehlen. {descriptors}. Hat alles gepasst.',
 ];
 
 // App-wide settings
@@ -84,127 +87,29 @@ export const MESSAGES = {
 // ============================================
 // LANGUAGE SETTINGS
 // ============================================
-export const LANGUAGES = {
-  de: {
-    code: 'de',
-    name: 'Deutsch',
-    nativeName: 'Deutsch',
-  },
-  en: {
-    code: 'en',
-    name: 'English',
-    nativeName: 'English',
-  },
-};
-
 export const DEFAULT_LANGUAGE = 'de';
 
 // ============================================
-// NOTIFICATION INTERVAL OPTIONS
-// ============================================
-export const NOTIFICATION_INTERVALS = [
-  { value: 7, label: { de: 'Wöchentlich', en: 'Weekly' } },
-  { value: 14, label: { de: 'Alle 2 Wochen', en: 'Every 2 weeks' } },
-  { value: 30, label: { de: 'Monatlich', en: 'Monthly' } },
-  { value: 60, label: { de: 'Alle 2 Monate', en: 'Every 2 months' } },
-  { value: 90, label: { de: 'Vierteljährlich', en: 'Quarterly' } },
-];
-
-// Test intervals for development - sends email immediately or after 2 minutes
-// These use fractional days (1 minute = 1/1440 of a day)
-export const TEST_INTERVALS = [
-  { value: 0, label: { de: 'Sofort (Test)', en: 'Now (Test)' } },
-  { value: 0.00139, label: { de: '2 Minuten (Test)', en: '2 Minutes (Test)' } }, // ~2 min in days
-];
-
-// Combined intervals for settings (production + test)
-export const ALL_NOTIFICATION_INTERVALS = [...NOTIFICATION_INTERVALS, ...TEST_INTERVALS];
-
-export const DEFAULT_NOTIFICATION_INTERVAL = 30;
-
-// ============================================
-// TIME SLOT OPTIONS
-// ============================================
-export const TIME_SLOTS = [
-  { value: 'morning', label: { de: 'Morgens (9-12 Uhr)', en: 'Morning (9am-12pm)' } },
-  { value: 'afternoon', label: { de: 'Nachmittags (12-17 Uhr)', en: 'Afternoon (12pm-5pm)' } },
-  { value: 'evening', label: { de: 'Abends (17-20 Uhr)', en: 'Evening (5pm-8pm)' } },
-];
-
-// ============================================
-// UI TEXT (Bilingual)
+// UI TEXT (German only - app is German)
 // ============================================
 export const UI_TEXT = {
-  de: {
-    // Navigation
-    dashboard: 'Dashboard',
-    companies: 'Unternehmen',
-    subscribers: 'Abonnenten',
-    emailList: 'E-Mail-Liste',
-    analytics: 'Analytik',
-    settings: 'Einstellungen',
-    qrCode: 'QR-Code',
+  // Navigation
+  dashboard: 'Dashboard',
+  companies: 'Unternehmen',
+  qrCode: 'QR-Code',
 
-    // Common actions
-    save: 'Speichern',
-    cancel: 'Abbrechen',
-    delete: 'Löschen',
-    edit: 'Bearbeiten',
-    add: 'Hinzufügen',
-    back: 'Zurück',
-    next: 'Weiter',
-    submit: 'Absenden',
-    loading: 'Laden...',
+  // Common actions
+  save: 'Speichern',
+  cancel: 'Abbrechen',
+  delete: 'Löschen',
+  edit: 'Bearbeiten',
+  add: 'Hinzufügen',
+  back: 'Zurück',
+  loading: 'Laden...',
 
-    // Settings page
-    settingsTitle: 'Einstellungen',
-    languageLabel: 'Sprache',
-    defaultIntervalLabel: 'Standard-Benachrichtigungsintervall',
-    emailSettingsTitle: 'E-Mail-Einstellungen',
-    savedSuccessfully: 'Erfolgreich gespeichert!',
-
-    // QR Panel
-    selectCompany: 'Unternehmen auswählen',
-    reviewPage: 'Bewertungsseite',
-    signupPage: 'Anmeldeseite',
-    printQR: 'QR-Code drucken',
-    scanToReview: 'Scannen zum Bewerten',
-    scanToSignup: 'Scannen zum Anmelden',
-  },
-  en: {
-    // Navigation
-    dashboard: 'Dashboard',
-    companies: 'Companies',
-    subscribers: 'Subscribers',
-    emailList: 'Email List',
-    analytics: 'Analytics',
-    settings: 'Settings',
-    qrCode: 'QR Code',
-
-    // Common actions
-    save: 'Save',
-    cancel: 'Cancel',
-    delete: 'Delete',
-    edit: 'Edit',
-    add: 'Add',
-    back: 'Back',
-    next: 'Next',
-    submit: 'Submit',
-    loading: 'Loading...',
-
-    // Settings page
-    settingsTitle: 'Settings',
-    languageLabel: 'Language',
-    defaultIntervalLabel: 'Default notification interval',
-    emailSettingsTitle: 'Email Settings',
-    savedSuccessfully: 'Saved successfully!',
-
-    // QR Panel
-    selectCompany: 'Select company',
-    reviewPage: 'Review page',
-    signupPage: 'Signup page',
-    printQR: 'Print QR Code',
-    scanToReview: 'Scan to leave a review',
-    scanToSignup: 'Scan to sign up',
-  },
+  // QR Panel
+  selectCompany: 'Unternehmen auswählen',
+  reviewPage: 'Bewertungsseite',
+  printQR: 'QR-Code drucken',
+  scanToReview: 'Scannen zum Bewerten',
 };

@@ -89,9 +89,9 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Company Selector — only visible on dashboard pages */}
+            {/* Company Selector — visible on all screen sizes on dashboard pages */}
             {pathname.startsWith('/dashboard') && (
-              <div className="hidden sm:block border-l border-gray-200 dark:border-dark-700 pl-2 ml-1">
+              <div className="border-l border-gray-200 dark:border-dark-700 pl-2 ml-1">
                 <HeaderCompanySelector />
               </div>
             )}
