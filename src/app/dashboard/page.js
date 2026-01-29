@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -169,6 +170,19 @@ export default function DashboardPage() {
           )}
         </div>
         <div className="flex gap-2">
+          {/* Edit descriptors button - only when company selected */}
+          {selectedCompanyId && (
+            <Link
+              href={`/dashboard/companies/${selectedCompanyId}`}
+              className="inline-flex items-center text-sm px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-700 dark:text-dark-200 hover:bg-gray-50 dark:hover:bg-dark-700"
+              title="Bewertungsbeschreibungen bearbeiten"
+            >
+              <svg className="w-4 h-4 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              <span className="hidden sm:inline">Beschreibungen</span>
+            </Link>
+          )}
           {/* Delete company button - only when company selected */}
           {selectedCompanyId && (
             <Button
