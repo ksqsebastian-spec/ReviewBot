@@ -154,7 +154,8 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
         .single();
 
       if (categoryError) {
-        continue; // Skip failed category silently
+        console.error('CompanyForm: Fehler beim Erstellen der Kategorie:', categoryError);
+        continue;
       }
 
       // Create descriptors for this category
@@ -168,7 +169,7 @@ export default function CompanyForm({ company = null, onSuccess, onCancel }) {
         .insert(descriptors);
 
       if (descriptorError) {
-        // Continue silently - some descriptors may have been created
+        console.error('CompanyForm: Fehler beim Erstellen der Beschreibungen:', descriptorError);
       }
     }
   }

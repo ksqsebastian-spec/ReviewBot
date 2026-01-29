@@ -73,7 +73,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName, ini
       if (error) throw error;
       setCompanies(data || []);
     } catch (err) {
-      // Silently fail - companies will show empty
+      console.error('SignupWizard: Fehler beim Laden der Unternehmen:', err);
     } finally {
       setLoadingCompanies(false);
     }
@@ -219,7 +219,7 @@ export default function SignupWizard({ initialCompanyId, initialCompanyName, ini
                 name: formData.name.trim() || null,
               });
             } catch (err) {
-              // Already subscribed - continue silently
+              console.error('SignupWizard: Fallback-Anmeldung fehlgeschlagen:', err);
             }
           }
           setStep(4);

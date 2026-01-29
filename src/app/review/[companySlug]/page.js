@@ -166,7 +166,8 @@ function ReviewPageContent() {
         .eq('company_id', company.id);
 
       if (updateError) {
-        // Continue silently - don't block user experience
+        console.error('Review: Fehler beim Markieren als abgeschlossen:', updateError);
+        // Continue anyway - don't block user experience
       } else {
         setReviewCompleted(true);
 
@@ -186,7 +187,7 @@ function ReviewPageContent() {
         }
       }
     } catch (err) {
-      // Continue silently
+      console.error('Review: Fehler beim Deaktivieren des Abonnenten:', err);
     }
   };
 
@@ -201,7 +202,7 @@ function ReviewPageContent() {
         copied: true,
       });
     } catch (err) {
-      // Tracking failed silently
+      console.error('Review: Fehler beim Tracking:', err);
     }
   };
 
