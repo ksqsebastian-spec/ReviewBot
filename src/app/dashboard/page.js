@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -16,6 +17,7 @@ import GettingStarted from '@/components/dashboard/GettingStarted';
 */
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { selectedCompanyId, selectedCompany, refetchCompanies, companies } = useCompanyContext();
   const [stats, setStats] = useState({ companies: 0, reviews: 0 });
   const [reviewsByCompany, setReviewsByCompany] = useState([]);
@@ -106,11 +108,8 @@ export default function DashboardPage() {
   };
 
   const handleEditCompany = () => {
-    if (selectedCompany) {
-      // Find full company data from companies list
-      const fullCompany = companies.find(c => c.id === selectedCompanyId);
-      setEditingCompany(fullCompany || selectedCompany);
-      setShowAddModal(true);
+    if (selectedCompanyId) {
+      router.push(`/dashboard/companies/${selectedCompanyId}`);
     }
   };
 
