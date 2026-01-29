@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { DEFAULT_DESCRIPTOR_CATEGORIES } from '@/lib/constants';
 import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -121,6 +122,12 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
           .single();
 
         if (insertError) throw insertError;
+
+        // Add default descriptors for the new company
+        if (data) {
+          await addDefaultDescriptorsToCompany(data.id);
+        }
+
         if (onSuccess) onSuccess(data);
       }
 
@@ -132,6 +139,43 @@ export default function AddCompanyModal({ isOpen, onClose, onSuccess, company = 
       setSaving(false);
     }
   };
+
+  // Helper function to add default descriptors for a new company
+  async function addDefaultDescriptorsToCompany(companyId) {
+    for (let i = 0; i < DEFAULT_DESCRIPTOR_CATEGORIES.length; i++) {
+      const category = DEFAULT_DESCRIPTOR_CATEGORIES[i];
+
+      // Create category
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('descriptor_categories')
+        .insert({
+          company_id: companyId,
+          name: category.name,
+          sort_order: i,
+        })
+        .select()
+        .single();
+
+      if (categoryError) {
+        console.error('Fehler beim Erstellen der Kategorie:', categoryError);
+        continue;
+      }
+
+      // Create descriptors for this category
+      const descriptors = category.descriptors.map((text) => ({
+        category_id: categoryData.id,
+        text,
+      }));
+
+      const { error: descriptorError } = await supabase
+        .from('descriptors')
+        .insert(descriptors);
+
+      if (descriptorError) {
+        console.error('Fehler beim Erstellen der Beschreibungen:', descriptorError);
+      }
+    }
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? 'Unternehmen bearbeiten' : 'Neues Unternehmen'}>
