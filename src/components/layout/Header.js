@@ -19,10 +19,9 @@ import HeaderCompanySelector from '@/components/layout/HeaderCompanySelector';
 export default function Header() {
   const pathname = usePathname();
 
-  // Navigation links configuration
+  // Navigation links configuration - simplified
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/companies', label: 'Unternehmen' },
     { href: '/dashboard', label: 'Dashboard' },
   ];
 

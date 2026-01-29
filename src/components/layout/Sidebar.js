@@ -17,32 +17,12 @@ import { usePathname } from 'next/navigation';
 export default function Sidebar() {
   const pathname = usePathname();
 
-  // Dashboard navigation sections
+  // Dashboard navigation - simplified
   const sections = [
     {
-      title: 'Management',
+      title: 'Navigation',
       links: [
         { href: '/dashboard', label: 'Übersicht', icon: 'home' },
-        { href: '/dashboard/companies', label: 'Unternehmen', icon: 'building' },
-      ],
-    },
-    {
-      title: 'Tools',
-      links: [
-        { href: '/dashboard/qr-codes', label: 'QR-Codes', icon: 'qrcode' },
-        { href: '/dashboard/signup-links', label: 'Anmelde-Links', icon: 'link' },
-      ],
-    },
-    {
-      title: 'Marketing',
-      links: [
-        { href: '/dashboard/subscribers', label: 'Abonnenten', icon: 'users' },
-        { href: '/dashboard/analytics', label: 'Analytik', icon: 'chart' },
-      ],
-    },
-    {
-      title: 'System',
-      links: [
         { href: '/dashboard/settings', label: 'Einstellungen', icon: 'settings' },
       ],
     },
