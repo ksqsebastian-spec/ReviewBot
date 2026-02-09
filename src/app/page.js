@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import QRCode from '@/components/ui/QRCode';
 import Button from '@/components/ui/Button';
@@ -169,6 +170,17 @@ export default function HomePage() {
           <p className="text-sm text-gray-400 dark:text-dark-500 font-mono mt-1 text-center break-all">
             {selectedCompany ? `/review/${selectedCompany.slug}` : ''}
           </p>
+
+          {selectedCompany && (
+            <Link
+              href={`/review/${selectedCompany.slug}`}
+              className="mt-4 inline-flex items-center justify-center px-6 py-3
+                         bg-primary-600 hover:bg-primary-700 text-white font-medium
+                         rounded-lg transition-colors shadow-sm"
+            >
+              Bewertung starten →
+            </Link>
+          )}
         </div>
 
         {/* Reviews Stats Box */}
