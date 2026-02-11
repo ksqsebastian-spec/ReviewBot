@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_CONFIG } from '@/lib/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import HeaderCompanySelector from '@/components/layout/HeaderCompanySelector';
 
 /*
   Header Component
@@ -88,13 +87,6 @@ export default function Header() {
                 </Link>
               ))}
             </nav>
-
-            {/* Company Selector — visible on all screen sizes on dashboard pages */}
-            {pathname.startsWith('/dashboard') && (
-              <div className="border-l border-gray-200 dark:border-dark-700 pl-2 ml-1">
-                <HeaderCompanySelector />
-              </div>
-            )}
 
             {/* Theme Toggle */}
             <ThemeToggle />
