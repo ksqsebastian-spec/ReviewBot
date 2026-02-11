@@ -1,290 +1,195 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
-import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { useCompanyContext } from '@/contexts/CompanyContext';
+import CompanyCard from '@/components/dashboard/CompanyCard';
+import QRModal from '@/components/dashboard/QRModal';
 import AddCompanyModal from '@/components/forms/AddCompanyModal';
 import GettingStarted from '@/components/dashboard/GettingStarted';
 
 /*
   Dashboard Overview Page
 
-  Simple dashboard showing companies and generated reviews.
-  QR codes are managed via the QRCodePanel sidebar.
+  Displays all companies in a grid layout for easy management.
+  Each company card provides quick access to:
+  - QR code (click to enlarge)
+  - Copy review wizard link
+  - Copy/open Google Reviews link
+  - Edit company or descriptors
+
+  WHY THIS DESIGN?
+  Previous design required switching between companies via a dropdown.
+  New design shows everything at once, reducing cognitive load and clicks.
+  Users can manage multiple companies efficiently from one view.
 */
 
 export default function DashboardPage() {
-  const { selectedCompanyId, selectedCompany, refetchCompanies, companies, setSelectedCompanyId } = useCompanyContext();
-  const [stats, setStats] = useState({ companies: 0, reviews: 0 });
-  const [reviewsByCompany, setReviewsByCompany] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
-  const [resetting, setResetting] = useState(false);
-  const [deletingCompany, setDeletingCompany] = useState(false);
+  const [qrModalCompany, setQrModalCompany] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
-  const fetchStats = useCallback(async (showLoading = true) => {
-    if (!supabase) { setLoading(false); return; }
+  // Fetch all companies
+  const fetchCompanies = useCallback(async (showLoading = true) => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     if (showLoading) setLoading(true);
 
     try {
-      if (selectedCompanyId) {
-        const { count: reviewCount } = await supabase
-          .from('generated_reviews')
-          .select('id', { count: 'exact', head: true })
-          .eq('company_id', selectedCompanyId);
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name, slug, google_review_link, description, logo_url')
+        .order('name');
 
-        setStats({ companies: 1, reviews: reviewCount || 0 });
-      } else {
-        const [companiesRes, reviewsRes] = await Promise.all([
-          supabase.from('companies').select('id', { count: 'exact', head: true }),
-          supabase.from('generated_reviews').select('id', { count: 'exact', head: true }),
-        ]);
-
-        setStats({
-          companies: companiesRes.count || 0,
-          reviews: reviewsRes.count || 0,
-        });
-
-        // Fetch reviews per company for the table
-        const { data: reviewData } = await supabase
-          .from('generated_reviews')
-          .select('company_id, companies (id, name)')
-          .not('company_id', 'is', null);
-
-        if (reviewData) {
-          const companyMap = {};
-          reviewData.forEach((review) => {
-            if (!review.companies) return;
-            const companyId = review.company_id;
-            if (!companyMap[companyId]) {
-              companyMap[companyId] = { id: companyId, name: review.companies.name, count: 0 };
-            }
-            companyMap[companyId].count++;
-          });
-          setReviewsByCompany(Object.values(companyMap).sort((a, b) => b.count - a.count));
-        }
-      }
+      if (error) throw error;
+      setCompanies(data || []);
     } catch (err) {
-      console.error('Dashboard: Fehler beim Laden der Statistiken:', err);
+      console.error('Dashboard: Fehler beim Laden der Unternehmen:', err);
     } finally {
       setLoading(false);
     }
-  }, [selectedCompanyId]);
-
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  }, []);
 
   useEffect(() => {
-    const handleVisibilityChange = () => { if (document.visibilityState === 'visible') fetchStats(false); };
+    fetchCompanies();
+  }, [fetchCompanies]);
+
+  // Refresh data when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchCompanies(false);
+      }
+    };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [fetchStats]);
+  }, [fetchCompanies]);
 
+  // Handle company saved (add or edit)
   const handleCompanySaved = () => {
-    fetchStats();
-    if (refetchCompanies) refetchCompanies();
+    fetchCompanies();
+    setShowAddModal(false);
     setEditingCompany(null);
   };
 
-  const handleResetReviews = async () => {
-    if (!confirm('Alle generierten Bewertungen löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+  // Handle edit company
+  const handleEditCompany = (company) => {
+    setEditingCompany(company);
+    setShowAddModal(true);
+  };
+
+  // Handle delete company
+  const handleDeleteCompany = async (company) => {
+    if (!confirm(`Unternehmen "${company.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
       return;
     }
 
-    setResetting(true);
-    try {
-      const { error } = await supabase.from('generated_reviews').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) throw error;
-      fetchStats();
-    } catch (err) {
-      console.error('Dashboard: Fehler beim Zurücksetzen:', err);
-      alert('Fehler beim Zurücksetzen der Bewertungen.');
-    } finally {
-      setResetting(false);
-    }
-  };
-
-  const handleEditCompany = () => {
-    if (selectedCompany) {
-      const fullCompany = companies.find(c => c.id === selectedCompanyId);
-      setEditingCompany(fullCompany || selectedCompany);
-      setShowAddModal(true);
-    }
-  };
-
-  const handleDeleteCompany = async () => {
-    if (!selectedCompanyId || !selectedCompany) return;
-
-    if (!confirm(`Unternehmen "${selectedCompany.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
-      return;
-    }
-
-    setDeletingCompany(true);
+    setDeletingId(company.id);
     try {
       const { error } = await supabase
         .from('companies')
         .delete()
-        .eq('id', selectedCompanyId);
+        .eq('id', company.id);
 
       if (error) throw error;
-
-      // Clear selection and refetch companies
-      if (setSelectedCompanyId) setSelectedCompanyId(null);
-      if (refetchCompanies) refetchCompanies();
-      fetchStats();
+      fetchCompanies();
     } catch (err) {
       console.error('Dashboard: Fehler beim Löschen des Unternehmens:', err);
       alert('Unternehmen konnte nicht gelöscht werden.');
     } finally {
-      setDeletingCompany(false);
+      setDeletingId(null);
     }
   };
+
+  // Handle QR code click
+  const handleQRClick = (company) => {
+    setQrModalCompany(company);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div
+          className="animate-spin rounded-full h-10 w-10 border-4 border-primary-200 border-t-primary-600"
+          role="status"
+          aria-label="Wird geladen"
+        >
+          <span className="sr-only">Wird geladen</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {selectedCompany ? selectedCompany.name : 'Dashboard'}
-            </h1>
-            <p className="text-gray-600 dark:text-dark-400 mt-1">
-              {selectedCompanyId ? 'Statistiken für ausgewähltes Unternehmen' : 'Übersicht Ihrer Review-Plattform'}
-            </p>
-          </div>
-          {/* Edit button when company selected */}
-          {selectedCompany && (
-            <button
-              onClick={handleEditCompany}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-800 rounded-lg"
-              title="Unternehmen bearbeiten"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-          )}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-dark-400 mt-1">
+            {companies.length === 0
+              ? 'Erstellen Sie Ihr erstes Unternehmen'
+              : `${companies.length} ${companies.length === 1 ? 'Unternehmen' : 'Unternehmen'}`
+            }
+          </p>
         </div>
-        <div className="flex gap-2">
-          {/* Edit descriptors button - only when company selected */}
-          {selectedCompanyId && (
-            <Link
-              href={`/dashboard/companies/${selectedCompanyId}`}
-              className="inline-flex items-center text-sm px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-700 dark:text-dark-200 hover:bg-gray-50 dark:hover:bg-dark-700"
-              title="Bewertungsbeschreibungen bearbeiten"
-            >
-              <svg className="w-4 h-4 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-              <span className="hidden sm:inline">Beschreibungen</span>
-            </Link>
-          )}
-          {/* Delete company button - only when company selected */}
-          {selectedCompanyId && (
-            <Button
-              variant="secondary"
-              onClick={handleDeleteCompany}
-              loading={deletingCompany}
-              className="text-sm px-3 py-2 !text-red-600 hover:!bg-red-50 dark:!text-red-400 dark:hover:!bg-red-900/20"
-              title="Unternehmen löschen"
-            >
-              <svg className="w-4 h-4 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              <span className="hidden sm:inline">Löschen</span>
-            </Button>
-          )}
-          {/* Reset reviews button */}
-          <Button
-            variant="secondary"
-            onClick={handleResetReviews}
-            loading={resetting}
-            className="text-sm px-3 py-2"
-            title="Testdaten löschen"
-          >
-            <svg className="w-4 h-4 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span className="hidden sm:inline">Reset</span>
-          </Button>
-          {/* Add company button */}
-          <Button onClick={() => { setEditingCompany(null); setShowAddModal(true); }} className="text-sm px-3 py-2 sm:px-4 sm:py-2">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="hidden sm:inline">Neues Unternehmen</span>
-            <span className="sm:hidden">Neu</span>
-          </Button>
-        </div>
+
+        <Button
+          onClick={() => {
+            setEditingCompany(null);
+            setShowAddModal(true);
+          }}
+          className="text-sm px-4 py-2"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Neues Unternehmen
+        </Button>
       </div>
 
-      {/* Stats */}
-      <div className={`grid grid-cols-2 gap-4 ${selectedCompanyId ? '' : 'sm:grid-cols-2'}`}>
-        {!selectedCompanyId && (
-          <Card>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 sm:p-3 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-400">Unternehmen</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  {loading ? '...' : stats.companies}
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
-        <Card className={selectedCompanyId ? 'col-span-2' : ''}>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 sm:p-3 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-400">Bewertungen generiert</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                {loading ? '...' : stats.reviews}
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Reviews by Company - hidden on mobile */}
-      {!selectedCompanyId && reviewsByCompany.length > 0 && (
-        <Card className="hidden sm:block">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Bewertungen pro Unternehmen
-          </h2>
-          <div className="space-y-2">
-            {reviewsByCompany.map((company) => (
-              <div key={company.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-dark-800 last:border-0">
-                <span className="font-medium text-gray-900 dark:text-white">{company.name}</span>
-                <span className="text-sm px-2 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                  {company.count} {company.count === 1 ? 'Bewertung' : 'Bewertungen'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
+      {/* Company Grid */}
+      {companies.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {companies.map((company) => (
+            <CompanyCard
+              key={company.id}
+              company={company}
+              onQRClick={handleQRClick}
+              onEdit={handleEditCompany}
+              onDelete={handleDeleteCompany}
+            />
+          ))}
+        </div>
+      ) : (
+        <GettingStarted />
       )}
 
-      {/* Getting Started */}
-      {!loading && stats.companies === 0 && !selectedCompanyId && <GettingStarted />}
-
+      {/* Add/Edit Company Modal */}
       <AddCompanyModal
         isOpen={showAddModal}
-        onClose={() => { setShowAddModal(false); setEditingCompany(null); }}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingCompany(null);
+        }}
         onSuccess={handleCompanySaved}
         company={editingCompany}
+      />
+
+      {/* QR Code Modal */}
+      <QRModal
+        isOpen={!!qrModalCompany}
+        onClose={() => setQrModalCompany(null)}
+        company={qrModalCompany}
       />
     </div>
   );

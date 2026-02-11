@@ -1,34 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import QRCode from '@/components/ui/QRCode';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import { copyToClipboard } from '@/lib/utils';
 
 /*
   Home Page — Kiosk-Ready Landing
 
   Minimal page designed for display at business locations (tablet, screen).
-  Shows a QR code for the selected company's review page.
+  Optimized for ease of use with prominent call-to-action.
 
   LAYOUT:
   1. Company selector (dropdown)
-  2. Large QR code → /review/[slug]
-  3. Reviews stats box showing generated reviews per company
+  2. Big CTA button to start review
+  3. Smaller QR code (for scanning)
+  4. Quick action buttons (copy link, open Google)
+
+  DESIGN PHILOSOPHY:
+  - Large, touch-friendly buttons
+  - Clear visual hierarchy
+  - Minimal distractions
+  - Easy for customers to understand instantly
 */
 
 export default function HomePage() {
-  const router = useRouter();
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [reviewStats, setReviewStats] = useState([]);
+  const [copyState, setCopyState] = useState({ link: false, google: false });
 
-  // Fetch companies and review stats on mount
+  // Fetch companies on mount
   useEffect(() => {
     async function fetchData() {
       if (!supabase) {
@@ -38,35 +44,15 @@ export default function HomePage() {
       }
 
       try {
-        // Fetch companies
         const { data: companiesData, error: fetchError } = await supabase
           .from('companies')
-          .select('id, name, slug')
+          .select('id, name, slug, google_review_link')
           .order('name');
 
         if (fetchError) throw fetchError;
         setCompanies(companiesData || []);
         if (companiesData && companiesData.length > 0) {
           setSelectedCompany(companiesData[0]);
-        }
-
-        // Fetch review counts per company
-        const { data: reviewData } = await supabase
-          .from('generated_reviews')
-          .select('company_id, companies (id, name)')
-          .not('company_id', 'is', null);
-
-        if (reviewData) {
-          const statsMap = {};
-          reviewData.forEach((review) => {
-            if (!review.companies) return;
-            const companyId = review.company_id;
-            if (!statsMap[companyId]) {
-              statsMap[companyId] = { id: companyId, name: review.companies.name, count: 0 };
-            }
-            statsMap[companyId].count++;
-          });
-          setReviewStats(Object.values(statsMap).sort((a, b) => b.count - a.count));
         }
       } catch (err) {
         console.error('Homepage: Fehler beim Laden:', err);
@@ -84,6 +70,27 @@ export default function HomePage() {
     if (!selectedCompany) return '';
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     return `${baseUrl}/review/${selectedCompany.slug}`;
+  };
+
+  // Handle copy with visual feedback
+  const handleCopy = async (type) => {
+    const textToCopy = type === 'link' ? getReviewUrl() : selectedCompany?.google_review_link;
+    if (!textToCopy) return;
+
+    const success = await copyToClipboard(textToCopy);
+    if (success) {
+      setCopyState((prev) => ({ ...prev, [type]: true }));
+      setTimeout(() => {
+        setCopyState((prev) => ({ ...prev, [type]: false }));
+      }, 2000);
+    }
+  };
+
+  // Open Google Reviews
+  const handleOpenGoogle = () => {
+    if (selectedCompany?.google_review_link) {
+      window.open(selectedCompany.google_review_link, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Loading state
@@ -124,9 +131,14 @@ export default function HomePage() {
           <p className="text-gray-500 dark:text-dark-400 mb-4">
             Erstellen Sie Ihr erstes Unternehmen im Dashboard.
           </p>
-          <Button onClick={() => router.push('/dashboard/companies')}>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center px-6 py-3
+                       bg-primary-600 hover:bg-primary-700 text-white font-medium
+                       rounded-lg transition-colors"
+          >
             Zum Dashboard
-          </Button>
+          </Link>
         </Card>
       </div>
     );
@@ -134,9 +146,9 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-6">
 
-        {/* Company Selector - always show dropdown */}
+        {/* Company Selector */}
         <div className="text-center">
           <select
             value={selectedCompany?.id || ''}
@@ -146,7 +158,7 @@ export default function HomePage() {
             }}
             className="px-6 py-3 border-2 border-primary-200 dark:border-primary-800 rounded-xl
                        bg-white dark:bg-dark-800 text-gray-900 dark:text-white
-                       text-2xl font-bold text-center
+                       text-xl font-bold text-center
                        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
                        cursor-pointer shadow-sm"
           >
@@ -158,55 +170,109 @@ export default function HomePage() {
           </select>
         </div>
 
-        {/* QR Code — large, centered, always on white for scannability */}
+        {/* Big CTA Button */}
+        {selectedCompany && (
+          <Link
+            href={`/review/${selectedCompany.slug}`}
+            className="block w-full py-5 px-6 text-center text-xl font-bold text-white
+                       bg-primary-600 hover:bg-primary-700
+                       dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-dark-950
+                       rounded-2xl shadow-lg hover:shadow-xl
+                       transition-all transform hover:scale-[1.02]
+                       focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800"
+          >
+            Jetzt Bewertung schreiben
+            <span className="block text-sm font-normal mt-1 opacity-90">
+              Schnell und einfach in 30 Sekunden
+            </span>
+          </Link>
+        )}
+
+        {/* QR Code — smaller, centered */}
         <div className="flex flex-col items-center">
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <QRCode url={getReviewUrl()} size={280} />
+          <div className="bg-white p-4 rounded-2xl shadow-sm">
+            <QRCode url={getReviewUrl()} size={180} />
           </div>
 
-          <p className="text-lg font-medium text-gray-900 dark:text-white mt-6 text-center">
-            Scannen & Bewertung abgeben
+          <p className="text-sm text-gray-500 dark:text-dark-400 mt-4 text-center">
+            Oder QR-Code scannen
           </p>
-          <p className="text-sm text-gray-400 dark:text-dark-500 font-mono mt-1 text-center break-all">
-            {selectedCompany ? `/review/${selectedCompany.slug}` : ''}
-          </p>
-
-          {selectedCompany && (
-            <Link
-              href={`/review/${selectedCompany.slug}`}
-              className="mt-4 inline-flex items-center justify-center px-6 py-3
-                         bg-primary-600 hover:bg-primary-700 text-white font-medium
-                         rounded-lg transition-colors shadow-sm"
-            >
-              Bewertung starten →
-            </Link>
-          )}
         </div>
 
-        {/* Reviews Stats Box */}
-        {reviewStats.length > 0 && (
-          <Card className="mt-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-dark-200 mb-3">
-              Generierte Bewertungen
-            </h3>
-            <div className="space-y-2">
-              {reviewStats.map((stat) => (
-                <div
-                  key={stat.id}
-                  className="flex items-center justify-between py-1.5 border-b border-gray-100 dark:border-dark-700 last:border-0"
-                >
-                  <span className="text-sm text-gray-600 dark:text-dark-300">{stat.name}</span>
-                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                    {stat.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-400 dark:text-dark-500 mt-3 text-center">
-              Bewertungen über diese Plattform erstellt
-            </p>
-          </Card>
-        )}
+        {/* Quick Action Buttons */}
+        <div className="flex flex-col gap-3">
+          {/* Copy Review Link */}
+          <button
+            onClick={() => handleCopy('link')}
+            className={`flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl
+                        text-sm font-medium transition-all
+                        ${copyState.link
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:hover:bg-dark-700'
+                        }`}
+          >
+            {copyState.link ? (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Link kopiert!
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Bewertungs-Link kopieren
+              </>
+            )}
+          </button>
+
+          {/* Google Actions Row */}
+          <div className="flex gap-3">
+            {/* Copy Google Link */}
+            <button
+              onClick={() => handleCopy('google')}
+              disabled={!selectedCompany?.google_review_link}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl
+                          text-sm font-medium transition-all
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                          ${copyState.google
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:hover:bg-dark-700'
+                          }`}
+              title="Google-Link kopieren"
+            >
+              {copyState.google ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              )}
+              Google-Link
+            </button>
+
+            {/* Open Google Reviews */}
+            <button
+              onClick={handleOpenGoogle}
+              disabled={!selectedCompany?.google_review_link}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl
+                         text-sm font-medium transition-colors
+                         bg-blue-600 text-white hover:bg-blue-700
+                         dark:bg-blue-500 dark:hover:bg-blue-400
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Google Reviews direkt öffnen"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Google öffnen
+            </button>
+          </div>
+        </div>
 
       </div>
     </div>
