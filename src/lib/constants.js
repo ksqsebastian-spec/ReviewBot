@@ -66,7 +66,7 @@ export const REVIEW_TEMPLATES = [
 
 // App-wide settings
 export const APP_CONFIG = {
-  appName: 'Review Bot',
+  appName: 'Wertungshelfer',
   maxDescriptorsPerReview: 6, // Prevent overly long reviews
   minDescriptorsForReview: 2, // Ensure reviews have substance
 };
