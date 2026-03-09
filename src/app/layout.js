@@ -1,7 +1,6 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { CompanyProvider } from '@/contexts/CompanyContext';
 import { APP_CONFIG } from '@/lib/constants';
 
 /*
@@ -56,7 +55,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen flex flex-col">
-        <CompanyProvider>
           {/* Skip link for keyboard users - invisible until focused */}
           <a
             href="#main-content"
@@ -65,17 +63,13 @@ export default function RootLayout({ children }) {
             Zum Hauptinhalt springen
           </a>
 
-          {/* Header appears on all pages */}
           <Header />
 
-          {/* Main content area */}
           <main id="main-content" className="flex-1">
             {children}
           </main>
 
-          {/* Footer appears on all pages */}
           <Footer />
-        </CompanyProvider>
       </body>
     </html>
   );

@@ -444,7 +444,7 @@ export function getCompanyBySlug(slug) {
 }
 
 /**
- * Get all companies (for dropdowns, lists, dashboard)
+ * Get all companies (for the overview page)
  * Returns a shallow copy to prevent accidental mutation
  */
 export function getAllCompanies() {
@@ -453,7 +453,7 @@ export function getAllCompanies() {
 
 /**
  * Find a company by its ID
- * Used by dashboard pages that reference company by ID
+ * Find a company by its internal ID
  */
 export function getCompanyById(id) {
   return COMPANIES.find((c) => c.id === id) || null;
