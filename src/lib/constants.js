@@ -104,7 +104,6 @@ export const DEFAULT_LANGUAGE = 'de';
 // ============================================
 export const UI_TEXT = {
   // Navigation
-  dashboard: 'Dashboard',
   companies: 'Unternehmen',
   qrCode: 'QR-Code',
 

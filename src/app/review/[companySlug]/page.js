@@ -1,10 +1,9 @@
 'use client';
 
-import { Suspense, useState, useEffect, useMemo } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import { generateReview } from '@/lib/utils';
-import { REVIEW_TEMPLATES, APP_CONFIG, MESSAGES } from '@/lib/constants';
+import { REVIEW_TEMPLATES, APP_CONFIG } from '@/lib/constants';
 import { getCompanyBySlug } from '@/lib/companyData';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -13,42 +12,27 @@ import ReviewPreview from '@/components/review/ReviewPreview';
 import ReviewActions from '@/components/review/ReviewActions';
 
 /*
-  Review Page
+  Review Page — Customer-Facing Review Wizard
 
-  The main review generation page for a specific company.
-  URL: /review/[companySlug] (e.g., /review/sunrise-dental)
-  Optional: ?sid=subscriberId (from email link)
+  URL: /review/[companySlug] (e.g., /review/brink)
+  Customers reach this page by scanning a QR code.
 
   HOW IT WORKS:
-  1. Fetches company info and descriptors from Supabase
-  2. Checks if subscriber has already reviewed (if sid provided)
-  3. User selects descriptors by clicking chips
-  4. Review is generated in real-time from selections
-  5. User copies review and clicks link to Google
-  6. Marks review as completed for that subscriber
-
-  SUBSCRIBER TRACKING:
-  When accessed via email link (?sid=xxx), we track:
-  - Whether they've already reviewed this company
-  - When they complete their review (copy + click Google)
+  1. Loads company info and descriptors from hardcoded data
+  2. Customer selects descriptor chips that match their experience
+  3. Review text is generated in real-time from selections
+  4. Customer copies the review and clicks the Google Reviews link
 */
 
-function ReviewPageContent() {
+export default function ReviewPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const companySlug = params.companySlug;
-  const subscriberId = searchParams.get('sid'); // Subscriber ID from email link
 
-  // State management
   const [company, setCompany] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedDescriptors, setSelectedDescriptors] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Subscriber state
-  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
-  const [reviewCompleted, setReviewCompleted] = useState(false);
 
   // Load company and descriptors from hardcoded data
   useEffect(() => {
@@ -98,19 +82,6 @@ function ReviewPageContent() {
     return generateReview(selectedTexts, REVIEW_TEMPLATES);
   }, [selectedDescriptors, categories]);
 
-  // Subscriber tracking is not needed with hardcoded data
-  // Kept as a no-op so ReviewActions' onLinkClick still works
-  const markReviewCompleted = async () => {};
-
-  // Copy tracking is not needed with hardcoded data
-  const handleCopy = async () => {};
-
-  // Track when Google link is clicked - this completes the review
-  const handleLinkClick = async () => {
-    // Mark the review as completed for this subscriber
-    await markReviewCompleted();
-  };
-
   // Loading state
   if (loading) {
     return (
@@ -128,57 +99,7 @@ function ReviewPageContent() {
       <div className="max-w-3xl mx-auto px-4 py-12">
         <Card className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/">
-            <Button>Zur Startseite</Button>
-          </Link>
-        </Card>
-      </div>
-    );
-  }
-
-  // Already reviewed state
-  if (alreadyReviewed) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        <Card className="text-center py-8">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Vielen Dank für Ihre Bewertung!
-          </h2>
-          <p className="text-gray-600 dark:text-dark-300 mb-4">
-            Sie haben bereits eine Bewertung für {company.name} abgegeben.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-dark-400">
-            Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
-          </p>
-        </Card>
-      </div>
-    );
-  }
-
-  // Review completed state (just completed)
-  if (reviewCompleted) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        <Card className="text-center py-8">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Vielen Dank!
-          </h2>
-          <p className="text-gray-600 dark:text-dark-300 mb-4">
-            Ihre Bewertung für {company.name} wurde erfasst.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-dark-400">
-            Sie werden keine weiteren Erinnerungen für dieses Unternehmen erhalten.
-          </p>
+          <Button onClick={() => window.location.reload()}>Erneut versuchen</Button>
         </Card>
       </div>
     );
@@ -188,36 +109,9 @@ function ReviewPageContent() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       {/* Company Header */}
-      <div className="mb-8">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-dark-400 dark:hover:text-dark-200 mb-4"
-        >
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Zurück
-        </Link>
-
-        <div className="flex items-center gap-4">
-          {company.logo_url ? (
-            <img
-              src={company.logo_url}
-              alt={`${company.name} Logo`}
-              className="w-16 h-16 rounded-lg object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                {company.name.charAt(0)}
-              </span>
-            </div>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h1>
-            <p className="text-gray-600 dark:text-dark-300">Bewertung hinterlassen</p>
-          </div>
-        </div>
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h1>
+        <p className="text-gray-600 dark:text-dark-300 mt-1">Bewertung hinterlassen</p>
       </div>
 
       {/* Main Card */}
@@ -257,8 +151,6 @@ function ReviewPageContent() {
                   reviewText={reviewText}
                   googleReviewUrl={company.google_review_link}
                   disabled={!reviewText}
-                  onCopy={handleCopy}
-                  onLinkClick={handleLinkClick}
                 />
               </>
             )}
@@ -266,22 +158,5 @@ function ReviewPageContent() {
         )}
       </Card>
     </div>
-  );
-}
-
-// Wrapper component with Suspense for useSearchParams
-export default function ReviewPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-3xl mx-auto px-4 py-12">
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600"></div>
-          </div>
-        </div>
-      }
-    >
-      <ReviewPageContent />
-    </Suspense>
   );
 }
