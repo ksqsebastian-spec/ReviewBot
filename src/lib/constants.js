@@ -62,6 +62,16 @@ export const REVIEW_TEMPLATES = [
   'Top Erfahrung gemacht. {descriptors}. Daumen hoch!',
   '{descriptors}. Bin wirklich positiv überrascht worden.',
   'Kann ich empfehlen. {descriptors}. Hat alles gepasst.',
+  'Kurz und knapp: {descriptors}. Passt!',
+  '{descriptors}. Was will man mehr?',
+  'Muss mal ein Lob dalassen: {descriptors}.',
+  '{descriptors}. Genau so soll es sein.',
+  'Haben wir gut gemacht mit der Wahl. {descriptors}.',
+  '{descriptors}. Klare Empfehlung von meiner Seite.',
+  'Richtig gute Erfahrung. {descriptors}.',
+  '{descriptors}. Alles bestens, vielen Dank!',
+  'Rundum zufrieden. {descriptors}. Weiter so!',
+  '{descriptors} — mehr kann man nicht erwarten.',
 ];
 
 // App-wide settings

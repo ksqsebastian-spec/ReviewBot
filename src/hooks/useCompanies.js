@@ -1,19 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { getAllCompanies } from '@/lib/companyData';
 
 /*
   useCompanies Hook
 
-  Fetches and manages company data.
-  Reusable across components that need company list.
+  Returns the hardcoded company list.
+  Keeps the same API (companies, loading, error, refetch) so all
+  consuming components work without changes.
 
-  WHY A HOOK?
-  - Same fetch logic used in 4+ places
-  - Centralizes error handling
-  - Consistent loading states
-  - Easy to extend (add caching, filtering, etc.)
+  WHY KEEP THE HOOK?
+  - Components already import it — no need to update every consumer
+  - The loading/error/refetch interface stays consistent
+  - If we ever go back to Supabase, we only change this file
 */
 
 export default function useCompanies() {
@@ -22,38 +22,14 @@ export default function useCompanies() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchCompanies();
+    setCompanies(getAllCompanies());
+    setLoading(false);
   }, []);
-
-  const fetchCompanies = async () => {
-    if (!supabase) {
-      setError('Datenbankverbindung nicht verfügbar');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data, error: fetchError } = await supabase
-        .from('companies')
-        .select('id, name, slug')
-        .order('name');
-
-      if (fetchError) throw fetchError;
-      setCompanies(data || []);
-    } catch (err) {
-      setError('Unternehmen konnten nicht geladen werden');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return {
     companies,
     loading,
     error,
-    refetch: fetchCompanies,
+    refetch: () => setCompanies(getAllCompanies()),
   };
 }
