@@ -452,7 +452,6 @@ export function getAllCompanies() {
 }
 
 /**
- * Find a company by its ID
  * Find a company by its internal ID
  */
 export function getCompanyById(id) {
