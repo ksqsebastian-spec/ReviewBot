@@ -3,9 +3,9 @@
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
 import { generateReview } from '@/lib/utils';
 import { REVIEW_TEMPLATES, APP_CONFIG, MESSAGES } from '@/lib/constants';
+import { getCompanyBySlug } from '@/lib/companyData';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import DescriptorChips from '@/components/review/DescriptorChips';
@@ -50,76 +50,22 @@ function ReviewPageContent() {
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
   const [reviewCompleted, setReviewCompleted] = useState(false);
 
-  // Fetch company and descriptors on mount
+  // Load company and descriptors from hardcoded data
   useEffect(() => {
-    async function fetchData() {
-      if (!supabase) {
-        setError('Datenbankverbindung nicht verfügbar.');
-        setLoading(false);
-        return;
-      }
+    if (!companySlug) return;
 
-      try {
-        // Get the company by slug
-        const { data: companyData, error: companyError } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('slug', companySlug)
-          .single();
+    const companyData = getCompanyBySlug(companySlug);
 
-        if (companyError) throw companyError;
-        if (!companyData) throw new Error('Company not found');
-
-        setCompany(companyData);
-
-        // Check if subscriber already reviewed this company
-        if (subscriberId) {
-          const { data: subCompany } = await supabase
-            .from('subscriber_companies')
-            .select('review_completed_at')
-            .eq('subscriber_id', subscriberId)
-            .eq('company_id', companyData.id)
-            .single();
-
-          if (subCompany?.review_completed_at) {
-            setAlreadyReviewed(true);
-          }
-        }
-
-        // Get categories with their descriptors
-        const { data: categoryData, error: categoryError } = await supabase
-          .from('descriptor_categories')
-          .select(`
-            id,
-            name,
-            sort_order,
-            descriptors (
-              id,
-              text
-            )
-          `)
-          .eq('company_id', companyData.id)
-          .order('sort_order');
-
-        if (categoryError) throw categoryError;
-        setCategories(categoryData || []);
-
-      } catch (err) {
-        // Error handled by state
-        setError(
-          err.message === 'Company not found'
-            ? 'Dieses Unternehmen wurde nicht gefunden.'
-            : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
-        );
-      } finally {
-        setLoading(false);
-      }
+    if (!companyData) {
+      setError('Dieses Unternehmen wurde nicht gefunden.');
+      setLoading(false);
+      return;
     }
 
-    if (companySlug) {
-      fetchData();
-    }
-  }, [companySlug, subscriberId]);
+    setCompany(companyData);
+    setCategories(companyData.categories || []);
+    setLoading(false);
+  }, [companySlug]);
 
   // Toggle descriptor selection
   const handleToggle = (descriptorId) => {
@@ -152,59 +98,12 @@ function ReviewPageContent() {
     return generateReview(selectedTexts, REVIEW_TEMPLATES);
   }, [selectedDescriptors, categories]);
 
-  // Mark review as completed for subscriber
-  // Also auto-deactivates subscriber if all companies have been reviewed
-  const markReviewCompleted = async () => {
-    if (!subscriberId || !company || !supabase || reviewCompleted) return;
+  // Subscriber tracking is not needed with hardcoded data
+  // Kept as a no-op so ReviewActions' onLinkClick still works
+  const markReviewCompleted = async () => {};
 
-    try {
-      // Update subscriber_companies to mark review as completed
-      const { error: updateError } = await supabase
-        .from('subscriber_companies')
-        .update({ review_completed_at: new Date().toISOString() })
-        .eq('subscriber_id', subscriberId)
-        .eq('company_id', company.id);
-
-      if (updateError) {
-        console.error('Review: Fehler beim Markieren als abgeschlossen:', updateError);
-        // Continue anyway - don't block user experience
-      } else {
-        setReviewCompleted(true);
-
-        // Check if all companies have been reviewed - auto-deactivate if so
-        const { data: remaining } = await supabase
-          .from('subscriber_companies')
-          .select('id')
-          .eq('subscriber_id', subscriberId)
-          .is('review_completed_at', null);
-
-        if (!remaining || remaining.length === 0) {
-          // All companies reviewed — deactivate subscriber (no more emails needed)
-          await supabase
-            .from('subscribers')
-            .update({ is_active: false })
-            .eq('id', subscriberId);
-        }
-      }
-    } catch (err) {
-      console.error('Review: Fehler beim Deaktivieren des Abonnenten:', err);
-    }
-  };
-
-  // Track when review is copied
-  const handleCopy = async () => {
-    if (!company || !supabase) return;
-
-    try {
-      await supabase.from('generated_reviews').insert({
-        company_id: company.id,
-        review_text: reviewText,
-        copied: true,
-      });
-    } catch (err) {
-      console.error('Review: Fehler beim Tracking:', err);
-    }
-  };
+  // Copy tracking is not needed with hardcoded data
+  const handleCopy = async () => {};
 
   // Track when Google link is clicked - this completes the review
   const handleLinkClick = async () => {

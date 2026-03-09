@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
+import { getAllCompanies } from '@/lib/companyData';
 import QRCode from '@/components/ui/QRCode';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -34,35 +34,14 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [copyState, setCopyState] = useState({ link: false, google: false });
 
-  // Fetch companies on mount
+  // Load companies from hardcoded data
   useEffect(() => {
-    async function fetchData() {
-      if (!supabase) {
-        setError('Datenbankverbindung nicht verfügbar.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: companiesData, error: fetchError } = await supabase
-          .from('companies')
-          .select('id, name, slug, google_review_link')
-          .order('name');
-
-        if (fetchError) throw fetchError;
-        setCompanies(companiesData || []);
-        if (companiesData && companiesData.length > 0) {
-          setSelectedCompany(companiesData[0]);
-        }
-      } catch (err) {
-        console.error('Homepage: Fehler beim Laden:', err);
-        setError('Unternehmen konnten nicht geladen werden. Bitte erneut versuchen.');
-      } finally {
-        setLoading(false);
-      }
+    const companiesData = getAllCompanies();
+    setCompanies(companiesData);
+    if (companiesData.length > 0) {
+      setSelectedCompany(companiesData[0]);
     }
-
-    fetchData();
+    setLoading(false);
   }, []);
 
   // Build review URL for the selected company

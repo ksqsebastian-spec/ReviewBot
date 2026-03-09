@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
+import { getAllCompanies } from '@/lib/companyData';
 
 /*
   CompanyContext
@@ -50,29 +50,14 @@ export function CompanyProvider({ children }) {
     }
   }, []);
 
-  // Fetch companies when a dashboard page is first visited
+  // Load companies from hardcoded data when dashboard is visited
   useEffect(() => {
-    if (!isDashboard || hasFetched || !supabase) return;
+    if (!isDashboard || hasFetched) return;
 
-    async function fetchCompanies() {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('companies')
-          .select('id, name, slug, google_review_link')
-          .order('name');
-
-        if (error) throw error;
-        setCompanies(data || []);
-      } catch (err) {
-        console.error('CompanyContext: Fehler beim Laden der Unternehmen:', err);
-      } finally {
-        setLoading(false);
-        setHasFetched(true);
-      }
-    }
-
-    fetchCompanies();
+    setLoading(true);
+    setCompanies(getAllCompanies());
+    setLoading(false);
+    setHasFetched(true);
   }, [isDashboard, hasFetched]);
 
   // Setter that also persists to localStorage
@@ -85,20 +70,9 @@ export function CompanyProvider({ children }) {
     }
   }, []);
 
-  // Refetch companies after create/delete operations
-  const refetchCompanies = useCallback(async () => {
-    if (!supabase) return;
-    try {
-      const { data, error } = await supabase
-        .from('companies')
-        .select('id, name, slug, google_review_link')
-        .order('name');
-
-      if (error) throw error;
-      setCompanies(data || []);
-    } catch (err) {
-      console.error('CompanyContext: Fehler beim Aktualisieren der Unternehmen:', err);
-    }
+  // Reload companies from hardcoded data
+  const refetchCompanies = useCallback(() => {
+    setCompanies(getAllCompanies());
   }, []);
 
   // Derived: full company object for the selected ID
